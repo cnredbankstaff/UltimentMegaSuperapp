@@ -1,0 +1,3436 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ultimate Mega Super App</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Outfit', sans-serif; }
+    
+    .app-shell { height: 100%; overflow: auto; width: 100%; }
+    
+    .grid-bg {
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(255,107,53,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 85% 80%, rgba(59,130,246,0.08) 0%, transparent 50%),
+        linear-gradient(135deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(255,255,255,0.02) 25%, transparent 25%);
+    }
+    
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-4px); }
+    
+    .mini-app-card {
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mini-app-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    
+    .stat-card { animation: stat-pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes stat-pop {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    
+    .glow-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.3); }
+    }
+    
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-fade-up { animation: fade-up 0.5s ease forwards; opacity: 0; }
+    
+    .tab-btn { transition: all 0.25s ease; }
+    .tab-btn.active { background: rgba(255,107,53,0.15); color: #ff6b35; }
+    
+    .calc-btn {
+      transition: all 0.15s ease;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .calc-btn:active { transform: scale(0.94); }
+    
+    .note-area, .search-input, .textarea-input {
+      font-family: 'JetBrains Mono', monospace;
+      resize: none;
+    }
+    .note-area:focus, .search-input:focus, .textarea-input:focus { outline: none; }
+    
+    .timer-ring { transition: stroke-dashoffset 1s linear; }
+    
+    input:focus, textarea:focus, select:focus { outline: none; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: rgba(255,255,255,0.8);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    
+    .streak-flame {
+      display: inline-block;
+      animation: flicker 0.4s ease-in-out infinite;
+    }
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .chart-bar {
+      transition: all 0.3s ease;
+      border-radius: 4px 4px 0 0;
+    }
+    
+    .mood-selector button {
+      transition: all 0.2s ease;
+      transform: scale(1);
+    }
+    .mood-selector button:hover {
+      transform: scale(1.15);
+    }
+    .mood-selector button.active {
+      transform: scale(1.2);
+    }
+    
+    .priority-badge {
+      display: inline-block;
+      width: 3px;
+      height: 12px;
+      border-radius: 2px;
+      margin-right: 6px;
+    }
+    
+    .expense-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .record-btn {
+      transition: all 0.2s ease;
+    }
+    .record-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full">
+  <div class="app-shell grid-bg" id="appShell">
+   <!-- Header -->
+   <header class="px-6 pt-6 pb-4">
+    <div class="max-w-7xl mx-auto">
+     <div class="flex items-center justify-between anim-fade-up" style="animation-delay: 0.05s">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 rounded-xl flex items-center justify-center" id="logoBox">
+        <i data-lucide="zap" style="width:22px;height:22px;color:#fff"></i>
+       </div>
+       <div>
+        <h1 class="text-2xl font-bold tracking-tight" id="appTitle">Ultimate Mega</h1>
+        <p class="text-xs opacity-50" id="welcomeMsg">The all-in-one life OS</p>
+       </div>
+      </div>
+      <div class="flex items-center gap-4">
+       <div class="text-right">
+        <div class="text-xs opacity-50">
+         Productivity
+        </div>
+        <div class="text-lg font-bold" id="prodScore">
+         85%
+        </div>
+       </div>
+       <div class="flex items-center gap-2">
+        <div class="glow-dot" id="glowDot"></div><span class="text-xs opacity-40 font-medium" id="clockDisplay">--:--</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </header><!-- Navigation Tabs -->
+   <nav class="px-6 pb-4" aria-label="App navigation">
+    <div class="max-w-7xl mx-auto">
+     <div class="flex gap-1 p-1 rounded-2xl overflow-x-auto anim-fade-up" id="navBar" style="animation-delay: 0.1s">
+      <button class="tab-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="dashboard" aria-current="page"> <i data-lucide="layout-dashboard" style="width:16px;height:16px"></i> Dashboard </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="journal"> <i data-lucide="book-open" style="width:16px;height:16px"></i> Journal </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="habits"> <i data-lucide="flame" style="width:16px;height:16px"></i> Habits </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="mood"> <i data-lucide="smile" style="width:16px;height:16px"></i> Mood </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="spending"> <i data-lucide="wallet" style="width:16px;height:16px"></i> Spending </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="goals"> <i data-lucide="target" style="width:16px;height:16px"></i> Goals </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="calendar"> <i data-lucide="calendar" style="width:16px;height:16px"></i> Calendar </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="analytics"> <i data-lucide="bar-chart-3" style="width:16px;height:16px"></i> Analytics </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="calculator"> <i data-lucide="calculator" style="width:16px;height:16px"></i> Calc </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="timer"> <i data-lucide="timer" style="width:16px;height:16px"></i> Timer </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="tasks"> <i data-lucide="check-square" style="width:16px;height:16px"></i> Tasks </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="notes"> <i data-lucide="sticky-note" style="width:16px;height:16px"></i> Notes </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="music"> <i data-lucide="music" style="width:16px;height:16px"></i> Music </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="movies"> <i data-lucide="film" style="width:16px;height:16px"></i> Movies </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="books"> <i data-lucide="library" style="width:16px;height:16px"></i> Books </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="fitness"> <i data-lucide="dumbbell" style="width:16px;height:16px"></i> Fitness </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="recipes"> <i data-lucide="chef-hat" style="width:16px;height:16px"></i> Recipes </button>
+     </div>
+    </div>
+   </nav><!-- Main Content -->
+   <main class="px-6 pb-8">
+    <div class="max-w-7xl mx-auto">
+     <!-- Dashboard Tab -->
+     <section id="tab-dashboard" class="tab-content">
+      <!-- Advanced Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.1s">
+        <div class="text-xs opacity-50 mb-1">
+         Journal Entries
+        </div>
+        <div class="text-xl font-bold" id="statEntries">
+         0
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="entryTrend">
+         +0 this week
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.15s">
+        <div class="text-xs opacity-50 mb-1">
+         Max Streak
+        </div>
+        <div class="text-xl font-bold flex items-center gap-1"><span id="statStreak">0</span> <span class="streak-flame">🔥</span>
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="streakHabit">
+         Top: --
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.2s">
+        <div class="text-xs opacity-50 mb-1">
+         Mood Score
+        </div>
+        <div class="text-xl font-bold" id="statMood">
+         😐
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="moodTrend">
+         Stable
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.25s">
+        <div class="text-xs opacity-50 mb-1">
+         Weekly Spend
+        </div>
+        <div class="text-xl font-bold">
+         $<span id="statSpending">0</span>
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="spendingForecast">
+         Est: $0
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.3s">
+        <div class="text-xs opacity-50 mb-1">
+         Goal Progress
+        </div>
+        <div class="text-xl font-bold"><span id="statGoals">0</span>%
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="goalsActive">
+         0 active
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.35s">
+        <div class="text-xs opacity-50 mb-1">
+         All Entries
+        </div>
+        <div class="text-xl font-bold" id="totalItems">
+         0
+        </div>
+        <div class="text-xs opacity-30 mt-1">
+         total data
+        </div>
+       </div>
+      </div><!-- AI Insights Panel -->
+      <div class="mini-app-card rounded-2xl p-5 mb-6 anim-fade-up" style="animation-delay:0.4s">
+       <div class="flex items-center gap-2 mb-3"><i data-lucide="brain" style="width:18px;height:18px" class="opacity-60"></i>
+        <h2 class="text-sm font-semibold opacity-70">Smart Insights</h2>
+       </div>
+       <div id="insightsPanel" class="space-y-2 text-sm opacity-80">
+        <p>✨ Start tracking to unlock AI insights</p>
+       </div>
+      </div>
+     </section><!-- Journal Tab -->
+     <section id="tab-journal" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold flex items-center gap-2"><i data-lucide="book-open" style="width:20px;height:20px"></i> Journal</h2>
+        <div class="text-xs opacity-40" id="journalStats">
+         0 entries
+        </div>
+       </div>
+       <div class="mb-4"><input id="journalSearch" type="text" placeholder="Search entries..." class="search-input w-full rounded-lg px-3 py-2 text-sm">
+       </div><textarea id="journalInput" class="note-area w-full h-20 rounded-lg p-2 text-sm mb-2" placeholder="Write your thoughts..."></textarea> <button id="journalBtn" class="w-full py-2 rounded-lg font-medium text-sm text-white mb-4">Save Entry</button>
+       <div id="journalList" class="space-y-3 max-h-96 overflow-y-auto">
+        <div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No entries yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Habits Tab -->
+     <section id="tab-habits" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="flame" style="width:20px;height:20px"></i> Daily Habits</h2>
+       <form id="habitForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="habitInput" type="text" placeholder="New habit..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Create Habit</button>
+       </form>
+       <div id="habitList" class="space-y-2">
+        <div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No habits yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Mood Tab -->
+     <section id="tab-mood" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="smile" style="width:20px;height:20px"></i> Mood Tracker</h2>
+       <div class="mb-6">
+        <p class="text-sm opacity-60 mb-3">How are you feeling today?</p>
+        <div class="mood-selector flex justify-around">
+         <button data-mood="1" class="text-4xl record-btn hover:opacity-80 transition">😢</button> <button data-mood="2" class="text-4xl record-btn hover:opacity-80 transition">😞</button> <button data-mood="3" class="text-4xl record-btn hover:opacity-80 transition">😐</button> <button data-mood="4" class="text-4xl record-btn hover:opacity-80 transition">🙂</button> <button data-mood="5" class="text-4xl record-btn hover:opacity-80 transition">😄</button>
+        </div>
+       </div>
+       <div id="moodHistory" class="space-y-2 max-h-64 overflow-y-auto">
+        <div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No mood records yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Spending Tab -->
+     <section id="tab-spending" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="wallet" style="width:20px;height:20px"></i> Spending Tracker</h2>
+       <form id="spendingForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="spendingCategory" type="text" placeholder="Category..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="spendingAmount" type="number" placeholder="Amount..." class="w-full rounded-lg px-3 py-2 text-sm" step="0.01"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add Expense</button>
+       </form>
+       <div id="spendingList" class="space-y-1">
+        <div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No expenses recorded</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Goals Tab -->
+     <section id="tab-goals" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="target" style="width:20px;height:20px"></i> Goals</h2>
+       <form id="goalForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="goalTitle" type="text" placeholder="Goal title..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="goalTarget" type="text" placeholder="Target..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Create Goal</button>
+       </form>
+       <div id="goalList" class="space-y-3">
+        <div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No goals yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Calendar Tab -->
+     <section id="tab-calendar" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="calendar" style="width:20px;height:20px"></i> Calendar</h2>
+       <div class="grid grid-cols-7 gap-2 mb-4" id="calendarGrid"></div>
+       <div class="text-xs opacity-50 mt-4">
+        <p id="calendarStats">No events scheduled</p>
+       </div>
+      </div>
+     </section><!-- Analytics Tab -->
+     <section id="tab-analytics" class="tab-content hidden">
+      <div class="space-y-4">
+       <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" style="width:20px;height:20px"></i> Advanced Analytics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         <div>
+          <div class="text-sm opacity-60 mb-2">
+           Daily Activity Heatmap
+          </div>
+          <div id="heatmap" class="grid grid-cols-7 gap-1"></div>
+         </div>
+         <div>
+          <div class="text-sm opacity-60 mb-2">
+           Productivity by Day
+          </div>
+          <div id="productivityChart" class="flex items-end gap-2 h-32"></div>
+         </div>
+        </div>
+       </div>
+       <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+        <div class="text-sm opacity-60 mb-2">
+         Time Spent by Category
+        </div>
+        <div id="timeSpent" class="space-y-2"></div>
+       </div>
+      </div>
+     </section><!-- Calculator Tab -->
+     <section id="tab-calculator" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 max-w-sm mx-auto anim-fade-up">
+       <div class="rounded-xl p-4 mb-4 text-right">
+        <div class="text-xs opacity-40 h-5 truncate" id="calcExpr">
+         &nbsp;
+        </div>
+        <div class="text-3xl font-bold tracking-tight" id="calcResult" style="font-family:'JetBrains Mono',monospace">
+         0
+        </div>
+       </div>
+       <div class="grid grid-cols-4 gap-2" id="calcGrid"></div>
+      </div>
+     </section><!-- Timer Tab -->
+     <section id="tab-timer" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 max-w-sm mx-auto text-center anim-fade-up">
+       <h2 class="text-lg font-bold mb-6 flex items-center justify-center gap-2"><i data-lucide="timer" style="width:20px;height:20px"></i> Timer</h2>
+       <div class="relative inline-block mb-6">
+        <svg width="200" height="200" viewbox="0 0 200 200">
+         <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8" /> <circle id="timerArc" class="timer-ring" cx="100" cy="100" r="88" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray="553" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center">
+         <span class="text-4xl font-bold" id="timerDisplay" style="font-family:'JetBrains Mono',monospace">5:00</span>
+        </div>
+       </div>
+       <div class="flex items-center justify-center gap-3 mb-4">
+        <label for="timerMinutes" class="text-sm font-medium opacity-60">Minutes:</label> <select id="timerMinutes" class="rounded-lg px-3 py-2 text-sm font-medium"> <option value="1">1</option> <option value="5" selected>5</option> <option value="10">10</option> <option value="25">25</option> </select>
+       </div>
+       <div class="flex justify-center gap-3">
+        <button id="timerStart" class="px-6 py-2.5 rounded-xl font-semibold text-sm text-white">Start</button> <button id="timerReset" class="px-6 py-2.5 rounded-xl font-semibold text-sm opacity-60">Reset</button>
+       </div>
+      </div>
+     </section><!-- Tasks Tab -->
+     <section id="tab-tasks" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="check-square" style="width:20px;height:20px"></i> Tasks</h2>
+       <form id="taskForm" class="flex gap-2 mb-4">
+        <input id="taskInput" type="text" placeholder="Add a task..." class="flex-1 rounded-xl px-4 py-2.5 text-sm"> <button type="submit" class="px-4 py-2.5 rounded-xl font-semibold text-sm text-white">Add</button>
+       </form>
+       <ul id="taskList" class="space-y-2"></ul>
+       <div class="text-center py-6 opacity-30" id="taskEmpty"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+        <p class="text-sm">No tasks</p>
+       </div>
+      </div>
+     </section><!-- Notes Tab -->
+     <section id="tab-notes" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="sticky-note" style="width:20px;height:20px"></i> Notes</h2>
+       <form id="noteForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="noteName" type="text" placeholder="Note title..." class="w-full rounded-lg px-3 py-2 text-sm"> <textarea id="noteText" class="note-area w-full h-16 rounded-lg p-2 text-sm" placeholder="Write your note..."></textarea> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Save Note</button>
+       </form>
+       <div id="noteList" class="space-y-3 max-h-96 overflow-y-auto">
+        <div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No notes yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Music Tab -->
+     <section id="tab-music" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="music" style="width:20px;height:20px"></i> Music</h2>
+       <form id="musicForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="musicName" type="text" placeholder="Song name..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="musicArtist" type="text" placeholder="Artist..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add Song</button>
+       </form>
+       <div id="musicList" class="space-y-2">
+        <div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No songs yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Movies Tab -->
+     <section id="tab-movies" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="film" style="width:20px;height:20px"></i> Movies</h2>
+       <form id="movieForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="movieName" type="text" placeholder="Movie title..." class="w-full rounded-lg px-3 py-2 text-sm"> <select id="movieRating" class="w-full rounded-lg px-3 py-2 text-sm"> <option value="">Rate it...</option> <option value="⭐">⭐</option> <option value="⭐⭐">⭐⭐</option> <option value="⭐⭐⭐">⭐⭐⭐</option> <option value="⭐⭐⭐⭐">⭐⭐⭐⭐</option> <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option> </select> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add Movie</button>
+       </form>
+       <div id="movieList" class="space-y-2">
+        <div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No movies yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Books Tab -->
+     <section id="tab-books" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="library" style="width:20px;height:20px"></i> Books</h2>
+       <form id="bookForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="bookTitle" type="text" placeholder="Book title..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="bookAuthor" type="text" placeholder="Author..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="bookPages" type="number" placeholder="Pages read..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add Book</button>
+       </form>
+       <div id="bookList" class="space-y-2">
+        <div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No books yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Fitness Tab -->
+     <section id="tab-fitness" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="dumbbell" style="width:20px;height:20px"></i> Fitness</h2>
+       <form id="fitnessForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="workoutName" type="text" placeholder="Workout type..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="workoutDuration" type="number" placeholder="Minutes..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="workoutCalories" type="number" placeholder="Calories burned..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Log Workout</button>
+       </form>
+       <div id="fitnessList" class="space-y-2">
+        <div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No workouts yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Recipes Tab -->
+     <section id="tab-recipes" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="chef-hat" style="width:20px;height:20px"></i> Recipes</h2>
+       <form id="recipeForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="recipeName" type="text" placeholder="Recipe name..." class="w-full rounded-lg px-3 py-2 text-sm"> <textarea id="recipeIngredients" class="note-area w-full h-12 rounded-lg p-2 text-sm" placeholder="Ingredients..."></textarea> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Save Recipe</button>
+       </form>
+       <div id="recipeList" class="space-y-3 max-h-96 overflow-y-auto">
+        <div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No recipes yet</p>
+        </div>
+       </div>
+      </div>
+     </section>
+    </div>
+   </main>
+  </div>
+  <script>
+    const defaultConfig = {
+      app_title: 'Ultimate Mega',
+      welcome_message: 'The all-in-one life OS',
+      background_color: '#0f1117',
+      surface_color: '#1a1d27',
+      text_color: '#e8e6e3',
+      primary_action: '#ff6b35',
+      secondary_action: '#3b82f6',
+      font_family: 'Outfit',
+      font_size: 16
+    };
+    
+    let allData = [];
+    let tasks = [], habits = [], goals = [], entries = [], moods = [], spending = [], notes = [], music = [], movies = [], books = [], fitness = [], recipes = [];
+    let calcValue = '0', calcExpression = '', calcPrevOp = null, calcPrevVal = 0, calcNewInput = true;
+    let timerTotal = 300, timerRemaining = 300, timerInterval = null, timerRunning = false;
+    
+    function generateSmartInsights() {
+      const insights = [];
+      if (moods.length >= 3) {
+        const recent = moods.slice(-7).map(m => parseInt(m.data));
+        const avg = recent.reduce((a,b) => a+b, 0) / recent.length;
+        if (avg >= 4) insights.push('💪 Amazing mood this week! Keep it up!');
+        else if (avg <= 2) insights.push('💙 Take a break—you deserve rest.');
+        else insights.push('😐 Mood is stable. Stay balanced!');
+      }
+      const topHabit = habits.reduce((max, h) => {
+        const count = JSON.parse(h.data || '{}').count || 0;
+        return count > (max.count || 0) ? { habit: h, count } : max;
+      }, {});
+      if (topHabit.habit) insights.push(`🔥 ${topHabit.habit.title}: ${topHabit.count} times!`);
+      if (spending.length >= 5) {
+        const weekSpend = spending.reduce((sum, s) => sum + parseFloat(s.data || 0), 0);
+        const forecast = (weekSpend * 4).toFixed(2);
+        insights.push(`💰 Forecasted monthly: $${forecast}`);
+      }
+      const goalProgress = goals.filter(g => parseInt(g.data) > 0).length;
+      if (goalProgress > 0) insights.push(`🎯 ${goalProgress} active goal${goalProgress > 1 ? 's' : ''}!`);
+      if (fitness.length > 0) {
+        const totalCals = fitness.reduce((sum, f) => sum + parseFloat(f.data || 0), 0);
+        insights.push(`🔥 Total calories burned: ${totalCals} cals`);
+      }
+      if (recipes.length > 0) insights.push(`👨‍🍳 ${recipes.length} recipes saved!`);
+      return insights.length > 0 ? insights : ['✨ Keep tracking to unlock insights'];
+    }
+    
+    const dataHandler = {
+      onDataChanged(data) {
+        allData = data || [];
+        tasks = allData.filter(d => d.type === 'task');
+        habits = allData.filter(d => d.type === 'habit');
+        goals = allData.filter(d => d.type === 'goal');
+        entries = allData.filter(d => d.type === 'journal');
+        moods = allData.filter(d => d.type === 'mood');
+        spending = allData.filter(d => d.type === 'spending');
+        notes = allData.filter(d => d.type === 'note');
+        music = allData.filter(d => d.type === 'music');
+        movies = allData.filter(d => d.type === 'movie');
+        books = allData.filter(d => d.type === 'book');
+        fitness = allData.filter(d => d.type === 'fitness');
+        recipes = allData.filter(d => d.type === 'recipe');
+        
+        document.getElementById('statEntries').textContent = entries.length;
+        const entryTrend = entries.filter(e => {
+          const age = Date.now() - new Date(e.timestamp).getTime();
+          return age < 7 * 24 * 60 * 60 * 1000;
+        }).length;
+        document.getElementById('entryTrend').textContent = `+${entryTrend} this week`;
+        
+        const topHabit = habits.reduce((max, h) => {
+          const count = JSON.parse(h.data || '{}').count || 0;
+          return count > (max.count || 0) ? { habit: h, count } : max;
+        }, {});
+        document.getElementById('statStreak').textContent = topHabit.count || 0;
+        document.getElementById('streakHabit').textContent = topHabit.habit ? `Top: ${topHabit.habit.title}` : 'Top: --';
+        
+        document.getElementById('statMood').textContent = calculateMoodEmoji();
+        document.getElementById('moodTrend').textContent = moods.length >= 3 ? 'Stable' : 'New';
+        
+        const totalSpending = spending.reduce((sum, s) => sum + (parseFloat(s.data) || 0), 0);
+        document.getElementById('statSpending').textContent = totalSpending.toFixed(2);
+        document.getElementById('spendingForecast').textContent = `Est: $${(totalSpending * 4).toFixed(2)}`;
+        
+        const completedGoals = goals.filter(g => g.data && parseInt(g.data) >= 50).length;
+        const goalPercent = goals.length > 0 ? Math.round((completedGoals / goals.length) * 100) : 0;
+        document.getElementById('statGoals').textContent = goalPercent;
+        document.getElementById('goalsActive').textContent = `${goals.length} active`;
+        
+        document.getElementById('totalItems').textContent = allData.length;
+        document.getElementById('prodScore').textContent = tasks.length > 0 ? Math.round((tasks.filter(t => t.data === 'completed').length / tasks.length) * 100) + '%' : '85%';
+        
+        const insights = generateSmartInsights();
+        document.getElementById('insightsPanel').innerHTML = insights.map(i => `<p>${i}</p>`).join('');
+        
+        renderJournalList(entries);
+        renderHabitList();
+        renderGoalList();
+        renderTasks();
+        renderMoodHistory();
+        renderSpendingList();
+        renderCalendar();
+        renderAnalytics();
+        renderNotes();
+        renderMusic();
+        renderMovies();
+        renderBooks();
+        renderFitness();
+        renderRecipes();
+      }
+    };
+    
+    (async () => {
+      const result = await window.dataSdk.init(dataHandler);
+      if (!result.isOk) console.error('Data SDK failed');
+    })();
+    
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (config) => applyConfig(config),
+      mapToCapabilities: (config) => ({
+        recolorables: [
+          { get: () => config.background_color || defaultConfig.background_color, set: v => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+          { get: () => config.surface_color || defaultConfig.surface_color, set: v => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+          { get: () => config.text_color || defaultConfig.text_color, set: v => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+          { get: () => config.primary_action || defaultConfig.primary_action, set: v => { config.primary_action = v; window.elementSdk.setConfig({ primary_action: v }); } },
+          { get: () => config.secondary_action || defaultConfig.secondary_action, set: v => { config.secondary_action = v; window.elementSdk.setConfig({ secondary_action: v }); } }
+        ],
+        borderables: [],
+        fontEditable: { get: () => config.font_family || defaultConfig.font_family, set: v => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); } },
+        fontSizeable: { get: () => config.font_size || defaultConfig.font_size, set: v => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); } }
+      }),
+      mapToEditPanelValues: (config) => new Map([
+        ['app_title', config.app_title || defaultConfig.app_title],
+        ['welcome_message', config.welcome_message || defaultConfig.welcome_message]
+      ])
+    });
+    
+    function hexAlpha(hex, alpha) {
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+    
+    function applyConfig(c) {
+      const bg = c.background_color || defaultConfig.background_color;
+      const sf = c.surface_color || defaultConfig.surface_color;
+      const tx = c.text_color || defaultConfig.text_color;
+      const pa = c.primary_action || defaultConfig.primary_action;
+      
+      const shell = document.getElementById('appShell');
+      shell.style.backgroundColor = bg;
+      shell.style.color = tx;
+      shell.style.fontFamily = `${c.font_family || defaultConfig.font_family}, Outfit, sans-serif`;
+      shell.style.fontSize = `${c.font_size || defaultConfig.font_size}px`;
+      
+      document.getElementById('appTitle').textContent = c.app_title || defaultConfig.app_title;
+      document.getElementById('welcomeMsg').textContent = c.welcome_message || defaultConfig.welcome_message;
+      document.getElementById('logoBox').style.background = pa;
+      document.getElementById('glowDot').style.background = pa;
+      document.getElementById('navBar').style.background = sf;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.style.background = btn.classList.contains('active') ? hexAlpha(pa, 0.15) : 'transparent';
+        btn.style.color = btn.classList.contains('active') ? pa : tx;
+      });
+      
+      document.querySelectorAll('.mini-app-card').forEach(el => el.style.background = sf);
+      document.querySelectorAll('textarea, input[type="text"], input[type="number"], select').forEach(el => {
+        el.style.background = hexAlpha(bg, 0.6);
+        el.style.color = tx;
+        el.style.border = `1px solid ${hexAlpha(tx, 0.08)}`;
+      });
+      
+      document.querySelectorAll('button').forEach(btn => {
+        if (btn.textContent.includes('Save') || btn.textContent.includes('Add') || btn.textContent.includes('Create') || btn.textContent.includes('Log')) {
+          btn.style.background = pa;
+        }
+      });
+      
+      document.getElementById('timerArc').style.stroke = pa;
+      rebuildCalcButtons(bg, sf, tx, pa);
+      renderTasks();
+    }
+    
+    function updateClock() {
+      const now = new Date();
+      const t = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('clockDisplay').textContent = t;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('active');
+          b.removeAttribute('aria-current');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-current', 'page');
+        
+        document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
+        document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+        
+        const cfg = window.elementSdk.config;
+        const pa = cfg.primary_action || defaultConfig.primary_action;
+        const tx = cfg.text_color || defaultConfig.text_color;
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.style.background = b.classList.contains('active') ? hexAlpha(pa, 0.15) : 'transparent';
+          b.style.color = b.classList.contains('active') ? pa : tx;
+        });
+        
+        // Budget
+    document.getElementById('budgetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const cat = document.getElementById('budgetCategory').value.trim();
+      const limit = document.getElementById('budgetLimit').value.trim();
+      if (!cat || !limit) return;
+      await window.dataSdk.create({
+        type: 'budget',
+        title: cat,
+        content: '',
+        data: limit,
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: cat,
+        value: '',
+        unit: ''
+      });
+      document.getElementById('budgetCategory').value = '';
+      document.getElementById('budgetLimit').value = '';
+    });
+    
+    function renderBudgetList() {
+      const container = document.getElementById('budgetList');
+      if (budget.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No budgets</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      budget.forEach(b => {
+        let el = existing.get(b.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = b.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(b.id);
+        }
+        const spent = spending.filter(s => s.category === b.title).reduce((sum, s) => sum + parseFloat(s.data || 0), 0);
+        const limit = parseFloat(b.data);
+        const percent = Math.min(100, (spent / limit * 100));
+        el.innerHTML = `<div class="font-medium text-sm mb-1">${b.title}</div><div class="text-xs opacity-60 mb-2">$${spent.toFixed(2)} / $${limit.toFixed(2)}</div><div class="w-full h-2 rounded bg-white bg-opacity-10 overflow-hidden"><div class="h-full transition-all" style="width: ${percent}%; background: ${percent > 80 ? '#ff6b35' : pa};"></div></div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Health
+    document.getElementById('healthForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const type = document.getElementById('healthType').value.trim();
+      const value = document.getElementById('healthValue').value.trim();
+      const unit = document.getElementById('healthUnit').value.trim();
+      if (!type || !value) return;
+      await window.dataSdk.create({
+        type: 'health',
+        title: type,
+        content: '',
+        data: value,
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'health',
+        value: value,
+        unit: unit
+      });
+      document.getElementById('healthType').value = '';
+      document.getElementById('healthValue').value = '';
+      document.getElementById('healthUnit').value = '';
+    });
+    
+    function renderHealthList() {
+      const container = document.getElementById('healthList');
+      if (health.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No vitals</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      health.forEach(h => {
+        let el = existing.get(h.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = h.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(h.id);
+        }
+        const date = new Date(h.timestamp).toLocaleDateString();
+        el.innerHTML = `<div class="font-medium text-sm">${h.title}</div><div class="text-xs opacity-60">${h.data} ${h.unit} • ${date}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Projects
+    document.getElementById('projectForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('projectName').value.trim();
+      const desc = document.getElementById('projectDesc').value.trim();
+      if (!name) return;
+      await window.dataSdk.create({
+        type: 'project',
+        title: name,
+        content: desc,
+        data: '0',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'work',
+        value: '',
+        unit: ''
+      });
+      document.getElementById('projectName').value = '';
+      document.getElementById('projectDesc').value = '';
+    });
+    
+    function renderProjectList() {
+      const container = document.getElementById('projectList');
+      if (projects.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No projects</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      projects.forEach(p => {
+        let el = existing.get(p.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = p.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(p.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm">${p.title}</div><div class="text-xs opacity-60 line-clamp-2">${p.content}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Ideas
+    document.getElementById('ideaForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('ideaTitle').value.trim();
+      const details = document.getElementById('ideaDetails').value.trim();
+      if (!title) return;
+      await window.dataSdk.create({
+        type: 'idea',
+        title: title,
+        content: details,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'inspiration',
+        value: '',
+        unit: ''
+      });
+      document.getElementById('ideaTitle').value = '';
+      document.getElementById('ideaDetails').value = '';
+    });
+    
+    function renderIdeaList() {
+      const container = document.getElementById('ideaList');
+      if (ideas.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No ideas</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      ideas.forEach(i => {
+        let el = existing.get(i.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = i.id;
+          el.className = 'mini-app-card rounded-lg p-3 cursor-pointer';
+          container.appendChild(el);
+          existing.delete(i.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm">${i.title}</div><div class="text-xs opacity-60 line-clamp-2">${i.content}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Travel
+    document.getElementById('travelForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const dest = document.getElementById('travelDest').value.trim();
+      const date = document.getElementById('travelDate').value.trim();
+      const plan = document.getElementById('travelPlan').value.trim();
+      if (!dest) return;
+      await window.dataSdk.create({
+        type: 'travel',
+        title: dest,
+        content: plan,
+        data: date,
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'travel',
+        value: '',
+        unit: ''
+      });
+      document.getElementById('travelDest').value = '';
+      document.getElementById('travelDate').value = '';
+      document.getElementById('travelPlan').value = '';
+    });
+    
+    function renderTravelList() {
+      const container = document.getElementById('travelList');
+      if (travel.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No trips</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      travel.forEach(t => {
+        let el = existing.get(t.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = t.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(t.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm">${t.title}</div><div class="text-xs opacity-60">${t.data}</div><div class="text-xs opacity-50 mt-1">${t.content.substring(0, 50)}...</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Gratitude
+    document.getElementById('gratitudeBtn').addEventListener('click', async () => {
+      const text = document.getElementById('gratitudeInput').value.trim();
+      if (!text) return;
+      await window.dataSdk.create({
+        type: 'gratitude',
+        title: text.substring(0, 50),
+        content: text,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'wellness',
+        value: '',
+        unit: ''
+      });
+      document.getElementById('gratitudeInput').value = '';
+    });
+    
+    function renderGratitudeList() {
+      const container = document.getElementById('gratitudeList');
+      if (gratitude.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No entries</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      gratitude.slice(-10).reverse().forEach(g => {
+        let el = existing.get(g.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = g.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(g.id);
+        }
+        const date = new Date(g.timestamp).toLocaleDateString();
+        el.innerHTML = `<div class="text-xs opacity-50 mb-1">${date}</div><div class="text-sm opacity-80">${g.content}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Skills
+    document.getElementById('skillForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('skillName').value.trim();
+      const level = document.getElementById('skillLevel').value.trim();
+      if (!name) return;
+      await window.dataSdk.create({
+        type: 'skill',
+        title: name,
+        content: level,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'learning',
+        value: '',
+        unit: ''
+      });
+      document.getElementById('skillName').value = '';
+      document.getElementById('skillLevel').value = '';
+    });
+    
+    function renderSkillList() {
+      const container = document.getElementById('skillList');
+      if (skills.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No skills</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      skills.forEach(s => {
+        let el = existing.get(s.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = s.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(s.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm">${s.title}</div><div class="text-xs opacity-60 inline-block px-2 py-1 rounded mt-1" style="background:rgba(255,255,255,0.05)">${s.content}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Collections
+    document.getElementById('collectionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('collectionName').value.trim();
+      const cat = document.getElementById('collectionCategory').value.trim();
+      if (!name) return;
+      await window.dataSdk.create({
+        type: 'collection',
+        title: name,
+        content: '',
+        data: cat,
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: cat,
+        value: '',
+        unit: ''
+      });
+      document.getElementById('collectionName').value = '';
+      document.getElementById('collectionCategory').value = '';
+    });
+    
+    function renderCollectionList() {
+      const container = document.getElementById('collectionList');
+      if (collections.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No items</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      const grouped = {};
+      collections.forEach(c => {
+        const cat = c.data || 'Other';
+        if (!grouped[cat]) grouped[cat] = [];
+        grouped[cat].push(c);
+      });
+      
+      Object.entries(grouped).forEach(([cat, items]) => {
+        const key = 'col-' + cat;
+        let section = document.querySelector('[data-section="' + key + '"]');
+        if (!section) {
+          section = document.createElement('div');
+          section.dataset.section = key;
+          container.appendChild(section);
+        }
+        section.innerHTML = `<div class="font-medium text-xs opacity-60 my-2">${cat}</div>`;
+        items.forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'text-sm p-2 rounded opacity-80';
+          row.style.background = 'rgba(255,255,255,0.03)';
+          row.textContent = item.title;
+          section.appendChild(row);
+        });
+      });
+      
+      lucide.createIcons();
+    }
+    
+    // Contacts
+    document.getElementById('contactForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('contactName').value.trim();
+      const info = document.getElementById('contactInfo').value.trim();
+      if (!name) return;
+      await window.dataSdk.create({
+        type: 'contact',
+        title: name,
+        content: info,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'contacts',
+        value: '',
+        unit: ''
+      });
+      document.getElementById('contactName').value = '';
+      document.getElementById('contactInfo').value = '';
+    });
+    
+    function renderContactList() {
+      const container = document.getElementById('contactList');
+      if (contacts.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No contacts</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      contacts.forEach(c => {
+        let el = existing.get(c.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = c.id;
+          el.className = 'mini-app-card rounded-lg p-3 flex items-center justify-between';
+          container.appendChild(el);
+          existing.delete(c.id);
+        }
+        el.innerHTML = `<div class="flex-1"><div class="font-medium text-sm">${c.title}</div><div class="text-xs opacity-50">${c.content}</div></div><button class="text-xs opacity-40 hover:opacity-100">✕</button>`;
+        el.querySelector('button').addEventListener('click', async () => {
+          await window.dataSdk.delete(c);
+        });
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    lucide.createIcons();
+      });
+    });
+    
+    // Journal
+    document.getElementById('journalBtn').addEventListener('click', async () => {
+      const text = document.getElementById('journalInput').value.trim();
+      if (!text) return;
+      await window.dataSdk.create({
+        type: 'journal',
+        title: text.substring(0, 50),
+        content: text,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'general'
+      });
+      document.getElementById('journalInput').value = '';
+    });
+    
+    document.getElementById('journalSearch').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = entries.filter(d => d.title.toLowerCase().includes(query) || d.content.toLowerCase().includes(query));
+      renderJournalList(filtered);
+    });
+    
+    function renderJournalList(list) {
+      const container = document.getElementById('journalList');
+      if (list.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No entries</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      list.forEach(entry => {
+        let el = existing.get(entry.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = entry.id;
+          el.className = 'mini-app-card rounded-lg p-3 cursor-pointer';
+          container.appendChild(el);
+          existing.delete(entry.id);
+        }
+        const date = new Date(entry.timestamp).toLocaleDateString();
+        el.innerHTML = `<div class="text-xs opacity-50 mb-1">${date}</div><div class="text-sm font-medium truncate">${entry.title}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Habits
+    document.getElementById('habitForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('habitInput').value.trim();
+      if (!text) return;
+      await window.dataSdk.create({
+        type: 'habit',
+        title: text,
+        content: '',
+        data: JSON.stringify({ count: 0 }),
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'health'
+      });
+      document.getElementById('habitInput').value = '';
+    });
+    
+    function renderHabitList() {
+      const list = document.getElementById('habitList');
+      if (habits.length === 0) {
+        list.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No habits</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...list.children].map(el => [el.dataset.id, el]));
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      habits.forEach(habit => {
+        let el = existing.get(habit.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = habit.id;
+          el.className = 'mini-app-card rounded-lg p-3 flex items-center justify-between';
+          list.appendChild(el);
+          existing.delete(habit.id);
+        }
+        let data = {};
+        try { data = JSON.parse(habit.data); } catch (e) { }
+        el.innerHTML = `<span class="flex-1 font-medium">${habit.title} <span class="text-xs opacity-50 ml-1">×${data.count || 0}</span></span><button class="px-2 py-1 text-xs rounded transition" style="background: ${hexAlpha(pa, 0.2)}; color: ${pa};">+</button>`;
+        el.querySelector('button').addEventListener('click', async () => {
+          const newData = JSON.stringify({ count: (data.count || 0) + 1 });
+          await window.dataSdk.update({ ...habit, data: newData });
+        });
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    function calculateMoodEmoji() {
+      if (moods.length === 0) return '😐';
+      const avg = moods.reduce((sum, m) => sum + parseInt(m.data), 0) / moods.length;
+      if (avg >= 4) return '😄';
+      if (avg >= 3) return '🙂';
+      if (avg >= 2) return '😐';
+      return '😞';
+    }
+    
+    document.querySelectorAll('.mood-selector button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await window.dataSdk.create({
+          type: 'mood',
+          title: btn.getAttribute('data-mood'),
+          content: btn.textContent,
+          data: btn.getAttribute('data-mood'),
+          tags: '',
+          timestamp: new Date().toISOString(),
+          priority: 'normal',
+          status: 'active',
+          category: 'wellness'
+        });
+      });
+    });
+    
+    function renderMoodHistory() {
+      const container = document.getElementById('moodHistory');
+      if (moods.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No records</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      moods.slice(-7).reverse().forEach(mood => {
+        let el = existing.get(mood.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = mood.id;
+          el.className = 'flex items-center justify-between text-sm p-2 rounded opacity-70';
+          container.appendChild(el);
+          existing.delete(mood.id);
+        }
+        const date = new Date(mood.timestamp).toLocaleDateString();
+        el.innerHTML = `<span>${date}</span><span class="text-2xl">${mood.content}</span>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Spending
+    document.getElementById('spendingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const category = document.getElementById('spendingCategory').value.trim();
+      const amount = document.getElementById('spendingAmount').value.trim();
+      if (!category || !amount) return;
+      await window.dataSdk.create({
+        type: 'spending',
+        title: category,
+        content: '',
+        data: amount,
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: category
+      });
+      document.getElementById('spendingCategory').value = '';
+      document.getElementById('spendingAmount').value = '';
+    });
+    
+    function renderSpendingList() {
+      const container = document.getElementById('spendingList');
+      if (spending.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No expenses</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      spending.slice(-10).reverse().forEach(item => {
+        let el = existing.get(item.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = item.id;
+          el.className = 'expense-item';
+          container.appendChild(el);
+          existing.delete(item.id);
+        }
+        el.innerHTML = `<span class="flex-1 text-sm">${item.title}</span><span class="font-semibold text-sm">$${parseFloat(item.data).toFixed(2)}</span>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Goals
+    document.getElementById('goalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('goalTitle').value.trim();
+      const target = document.getElementById('goalTarget').value.trim();
+      if (!title) return;
+      await window.dataSdk.create({
+        type: 'goal',
+        title,
+        content: target,
+        data: '0',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'high',
+        status: 'active',
+        category: 'personal'
+      });
+      document.getElementById('goalTitle').value = '';
+      document.getElementById('goalTarget').value = '';
+    });
+    
+    function renderGoalList() {
+      const list = document.getElementById('goalList');
+      if (goals.length === 0) {
+        list.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No goals</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...list.children].map(el => [el.dataset.id, el]));
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      goals.forEach(goal => {
+        let el = existing.get(goal.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = goal.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          list.appendChild(el);
+          existing.delete(goal.id);
+        }
+        const current = parseInt(goal.data) || 0;
+        const target = goal.content || '?';
+        const percent = target !== '?' ? Math.min(100, Math.round((current / parseInt(target)) * 100)) : 0;
+        el.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-medium">${goal.title}</span>
+          </div>
+          <div class="text-xs opacity-60 mb-2">${current}/${target}</div>
+          <div class="w-full h-2 rounded bg-white bg-opacity-10 overflow-hidden">
+            <div class="h-full transition-all" style="width: ${percent}%; background: ${pa};"></div>
+          </div>
+        `;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Calculator
+    const calcButtons = ['C', '±', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '0', '.', '⌫', '='];
+    
+    function rebuildCalcButtons(bg, sf, tx, pa) {
+      const grid = document.getElementById('calcGrid');
+      grid.innerHTML = '';
+      calcButtons.forEach(label => {
+        const btn = document.createElement('button');
+        btn.className = 'calc-btn rounded-xl py-3 text-base font-semibold';
+        btn.textContent = label;
+        if (label === '=') btn.style.background = pa;
+        else if (['÷','×','−','+'].includes(label)) btn.style.background = hexAlpha(pa, 0.12);
+        else btn.style.background = hexAlpha(bg, 0.5);
+        btn.addEventListener('click', () => handleCalc(label));
+        grid.appendChild(btn);
+      });
+    }
+    
+    function handleCalc(label) {
+      if (label === 'C') {
+        calcValue = '0'; calcExpression = ''; calcPrevOp = null; calcPrevVal = 0; calcNewInput = true;
+      } else if (label === '⌫') {
+        calcValue = calcValue.length > 1 ? calcValue.slice(0, -1) : '0';
+      } else if (label === '±') {
+        calcValue = calcValue.startsWith('-') ? calcValue.slice(1) : '-' + calcValue;
+      } else if (label === '%') {
+        calcValue = String(parseFloat(calcValue) / 100);
+      } else if ('÷×−+'.includes(label)) {
+        if (calcPrevOp && !calcNewInput) {
+          calcValue = String(evaluate(calcPrevVal, parseFloat(calcValue), calcPrevOp));
+        }
+        calcPrevVal = parseFloat(calcValue);
+        calcPrevOp = label;
+        calcExpression = calcValue + ' ' + label;
+        calcNewInput = true;
+      } else if (label === '=') {
+        if (calcPrevOp) {
+          calcExpression = calcPrevVal + ' ' + calcPrevOp + ' ' + calcValue;
+          calcValue = String(evaluate(calcPrevVal, parseFloat(calcValue), calcPrevOp));
+          calcPrevOp = null;
+        }
+        calcNewInput = true;
+      } else if (label === '.') {
+        if (calcNewInput) { calcValue = '0.'; calcNewInput = false; }
+        else if (!calcValue.includes('.')) calcValue += '.';
+      } else {
+        if (calcNewInput) { calcValue = label; calcNewInput = false; }
+        else calcValue += label;
+      }
+      document.getElementById('calcResult').textContent = calcValue;
+      document.getElementById('calcExpr').textContent = calcExpression || '\u00A0';
+    }
+    
+    function evaluate(a, b, op) {
+      switch(op) {
+        case '+': return a + b;
+        case '−': return a - b;
+        case '×': return a * b;
+        case '÷': return b !== 0 ? a / b : 0;
+      }
+      return b;
+    }
+    
+    // Timer
+    document.getElementById('timerMinutes').addEventListener('change', () => {
+      if (!timerRunning) {
+        timerTotal = parseInt(document.getElementById('timerMinutes').value) * 60;
+        timerRemaining = timerTotal;
+        updateTimerUI();
+      }
+    });
+    
+    document.getElementById('timerStart').addEventListener('click', () => {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timerStart').textContent = 'Start';
+      } else {
+        if (timerRemaining <= 0) timerRemaining = timerTotal;
+        timerRunning = true;
+        document.getElementById('timerStart').textContent = 'Pause';
+        timerInterval = setInterval(() => {
+          timerRemaining--;
+          if (timerRemaining <= 0) {
+            timerRemaining = 0;
+            clearInterval(timerInterval);
+            timerRunning = false;
+            document.getElementById('timerStart').textContent = 'Start';
+          }
+          updateTimerUI();
+        }, 1000);
+      }
+    });
+    
+    document.getElementById('timerReset').addEventListener('click', () => {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerTotal = parseInt(document.getElementById('timerMinutes').value) * 60;
+      timerRemaining = timerTotal;
+      updateTimerUI();
+      document.getElementById('timerStart').textContent = 'Start';
+    });
+    
+    function updateTimerUI() {
+      const m = Math.floor(timerRemaining / 60);
+      const s = timerRemaining % 60;
+      document.getElementById('timerDisplay').textContent = m + ':' + String(s).padStart(2, '0');
+      const offset = timerTotal > 0 ? (1 - timerRemaining / timerTotal) * 553 : 0;
+      document.getElementById('timerArc').style.strokeDashoffset = offset;
+    }
+    updateTimerUI();
+    
+    // Tasks
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('taskInput').value.trim();
+      if (!text) return;
+      await window.dataSdk.create({
+        type: 'task',
+        title: text,
+        content: '',
+        data: 'pending',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'work'
+      });
+      document.getElementById('taskInput').value = '';
+    });
+    
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      const empty = document.getElementById('taskEmpty');
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      const bg = cfg.background_color || defaultConfig.background_color;
+      const tx = cfg.text_color || defaultConfig.text_color;
+      
+      empty.style.display = tasks.length === 0 ? 'block' : 'none';
+      const existingMap = new Map([...list.children].map(el => [el.dataset.taskId, el]));
+      tasks.forEach(task => {
+        let li = existingMap.get(task.id);
+        if (li) {
+          existingMap.delete(task.id);
+        } else {
+          li = document.createElement('li');
+          li.dataset.taskId = task.id;
+          li.className = 'flex items-center gap-3 p-3 rounded-xl transition-all';
+          li.innerHTML = `
+            <button class="task-check w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"></button>
+            <span class="task-text flex-1 text-sm font-medium"></span>
+            <button class="task-del opacity-30 hover:opacity-100 transition"><i data-lucide="x" style="width:14px;height:14px"></i></button>
+          `;
+          li.querySelector('.task-check').addEventListener('click', async () => {
+            const newData = task.data === 'completed' ? 'pending' : 'completed';
+            await window.dataSdk.update({ ...task, data: newData });
+          });
+          li.querySelector('.task-del').addEventListener('click', async () => {
+            await window.dataSdk.delete(task);
+          });
+          list.appendChild(li);
+        }
+        li.style.background = hexAlpha(bg, 0.4);
+        const check = li.querySelector('.task-check');
+        const text = li.querySelector('.task-text');
+        text.textContent = task.title;
+        if (task.data === 'completed') {
+          check.style.background = pa;
+          check.style.borderColor = pa;
+          check.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;color:#fff"></i>';
+          text.style.opacity = '0.4';
+          text.style.textDecoration = 'line-through';
+        } else {
+          check.style.background = 'transparent';
+          check.style.borderColor = hexAlpha(tx, 0.3);
+          check.innerHTML = '';
+          text.style.opacity = '1';
+          text.style.textDecoration = 'none';
+        }
+      });
+      existingMap.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Calendar
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+      const today = new Date();
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        grid.appendChild(document.createElement('div'));
+      }
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const cell = document.createElement('div');
+        const dateStr = new Date(today.getFullYear(), today.getMonth(), day).toDateString();
+        const hasEntry = entries.some(e => new Date(e.timestamp).toDateString() === dateStr);
+        cell.className = 'rounded p-2 text-xs font-semibold text-center cursor-pointer transition';
+        cell.style.background = hasEntry ? hexAlpha(pa, 0.3) : hexAlpha(cfg.background_color || defaultConfig.background_color, 0.3);
+        cell.style.border = hasEntry ? `1px solid ${pa}` : 'none';
+        cell.textContent = day;
+        grid.appendChild(cell);
+      }
+    }
+    
+    // Analytics
+    function renderAnalytics() {
+      const heatmap = document.getElementById('heatmap');
+      heatmap.innerHTML = '';
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      for (let i = 0; i < 42; i++) {
+        const day = new Date();
+        day.setDate(day.getDate() - (41 - i));
+        const dateStr = day.toDateString();
+        const entryCount = entries.filter(e => new Date(e.timestamp).toDateString() === dateStr).length;
+        const cell = document.createElement('div');
+        const intensity = Math.min(entryCount / 3, 1);
+        cell.className = 'w-4 h-4 rounded-sm';
+        cell.style.background = intensity > 0 ? hexAlpha(pa, 0.3 + intensity * 0.6) : 'transparent';
+        cell.style.border = `1px solid ${hexAlpha(pa, 0.1)}`;
+        heatmap.appendChild(cell);
+      }
+      
+      const chart = document.getElementById('productivityChart');
+      chart.innerHTML = '';
+      for (let i = 6; i >= 0; i--) {
+        const day = new Date();
+        day.setDate(day.getDate() - i);
+        const dateStr = day.toDateString();
+        const dayTasks = tasks.filter(t => new Date(t.timestamp).toDateString() === dateStr).length;
+        const dayCompleted = tasks.filter(t => new Date(t.timestamp).toDateString() === dateStr && t.data === 'completed').length;
+        const height = dayTasks > 0 ? (dayCompleted / dayTasks * 100) : 0;
+        const bar = document.createElement('div');
+        bar.className = 'flex-1 rounded-t transition';
+        bar.style.height = height + '%';
+        bar.style.background = height > 0 ? pa : hexAlpha(pa, 0.1);
+        chart.appendChild(bar);
+      }
+      
+      const timeSpent = document.getElementById('timeSpent');
+      timeSpent.innerHTML = '';
+      const categoryTotals = {};
+      allData.forEach(item => {
+        if (!categoryTotals[item.category]) categoryTotals[item.category] = 0;
+        categoryTotals[item.category]++;
+      });
+      Object.entries(categoryTotals).forEach(([cat, count]) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3';
+        row.innerHTML = `<span class="text-xs font-medium w-20 truncate">${cat}</span><div class="flex-1 h-2 rounded bg-white bg-opacity-10 overflow-hidden"><div class="h-full" style="width: ${(count / allData.length * 100)}%; background: ${pa};"></div></div><span class="text-xs opacity-60">${count}</span>`;
+        timeSpent.appendChild(row);
+      });
+    }
+    
+    // Notes
+    document.getElementById('noteForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('noteName').value.trim();
+      const text = document.getElementById('noteText').value.trim();
+      if (!title) return;
+      await window.dataSdk.create({
+        type: 'note',
+        title,
+        content: text,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'note'
+      });
+      document.getElementById('noteName').value = '';
+      document.getElementById('noteText').value = '';
+    });
+    
+    function renderNotes() {
+      const container = document.getElementById('noteList');
+      if (notes.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No notes</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      notes.forEach(note => {
+        let el = existing.get(note.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = note.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(note.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm mb-1">${note.title}</div><div class="text-xs opacity-60 line-clamp-2">${note.content}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Music
+    document.getElementById('musicForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('musicName').value.trim();
+      const artist = document.getElementById('musicArtist').value.trim();
+      if (!name) return;
+      await window.dataSdk.create({
+        type: 'music',
+        title: name,
+        content: artist,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'music'
+      });
+      document.getElementById('musicName').value = '';
+      document.getElementById('musicArtist').value = '';
+    });
+    
+    function renderMusic() {
+      const container = document.getElementById('musicList');
+      if (music.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No songs</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      music.forEach(song => {
+        let el = existing.get(song.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = song.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(song.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm">${song.title}</div><div class="text-xs opacity-60">${song.content}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Movies
+    document.getElementById('movieForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('movieName').value.trim();
+      const rating = document.getElementById('movieRating').value;
+      if (!name) return;
+      await window.dataSdk.create({
+        type: 'movie',
+        title: name,
+        content: rating,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'movie'
+      });
+      document.getElementById('movieName').value = '';
+      document.getElementById('movieRating').value = '';
+    });
+    
+    function renderMovies() {
+      const container = document.getElementById('movieList');
+      if (movies.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No movies</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      movies.forEach(movie => {
+        let el = existing.get(movie.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = movie.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(movie.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm">${movie.title}</div><div class="text-sm opacity-70">${movie.content || '⭐'}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Books
+    document.getElementById('bookForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('bookTitle').value.trim();
+      const author = document.getElementById('bookAuthor').value.trim();
+      const pages = document.getElementById('bookPages').value.trim();
+      if (!title) return;
+      await window.dataSdk.create({
+        type: 'book',
+        title,
+        content: author,
+        data: pages,
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'book'
+      });
+      document.getElementById('bookTitle').value = '';
+      document.getElementById('bookAuthor').value = '';
+      document.getElementById('bookPages').value = '';
+    });
+    
+    function renderBooks() {
+      const container = document.getElementById('bookList');
+      if (books.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No books</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      books.forEach(book => {
+        let el = existing.get(book.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = book.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(book.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm">${book.title}</div><div class="text-xs opacity-60">${book.content} • ${book.data} pages</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Fitness
+    document.getElementById('fitnessForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('workoutName').value.trim();
+      const duration = document.getElementById('workoutDuration').value.trim();
+      const calories = document.getElementById('workoutCalories').value.trim();
+      if (!name) return;
+      await window.dataSdk.create({
+        type: 'fitness',
+        title: name,
+        content: duration,
+        data: calories,
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'fitness'
+      });
+      document.getElementById('workoutName').value = '';
+      document.getElementById('workoutDuration').value = '';
+      document.getElementById('workoutCalories').value = '';
+    });
+    
+    function renderFitness() {
+      const container = document.getElementById('fitnessList');
+      if (fitness.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No workouts</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      fitness.forEach(workout => {
+        let el = existing.get(workout.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = workout.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(workout.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm">${workout.title}</div><div class="text-xs opacity-60">${workout.content} min • ${workout.data} cals</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Recipes
+    document.getElementById('recipeForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('recipeName').value.trim();
+      const ingredients = document.getElementById('recipeIngredients').value.trim();
+      if (!name) return;
+      await window.dataSdk.create({
+        type: 'recipe',
+        title: name,
+        content: ingredients,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'recipe'
+      });
+      document.getElementById('recipeName').value = '';
+      document.getElementById('recipeIngredients').value = '';
+    });
+    
+    function renderRecipes() {
+      const container = document.getElementById('recipeList');
+      if (recipes.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No recipes</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      recipes.forEach(recipe => {
+        let el = existing.get(recipe.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = recipe.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          container.appendChild(el);
+          existing.delete(recipe.id);
+        }
+        el.innerHTML = `<div class="font-medium text-sm mb-1">${recipe.title}</div><div class="text-xs opacity-60 line-clamp-2">${recipe.content}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    lucide.createIcons();
+  </script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Outfit', sans-serif; }
+    
+    .app-shell { height: 100%; overflow: auto; width: 100%; }
+    
+    .grid-bg {
+      background-image:
+        radial-gradient(circle at 15% 20%, rgba(255,107,53,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 85% 80%, rgba(59,130,246,0.08) 0%, transparent 50%),
+        linear-gradient(135deg, rgba(255,255,255,0.02) 25%, transparent 25%),
+        linear-gradient(225deg, rgba(255,255,255,0.02) 25%, transparent 25%);
+    }
+    
+    .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-4px); }
+    
+    .mini-app-card {
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .mini-app-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    
+    .stat-card { animation: stat-pop 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+    @keyframes stat-pop {
+      0% { opacity: 0; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    
+    .glow-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.3); }
+    }
+    
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-fade-up { animation: fade-up 0.5s ease forwards; opacity: 0; }
+    
+    .tab-btn { transition: all 0.25s ease; }
+    .tab-btn.active { background: rgba(255,107,53,0.15); color: #ff6b35; }
+    
+    .calc-btn {
+      transition: all 0.15s ease;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .calc-btn:active { transform: scale(0.94); }
+    
+    .note-area, .search-input, .textarea-input {
+      font-family: 'JetBrains Mono', monospace;
+      resize: none;
+    }
+    .note-area:focus, .search-input:focus, .textarea-input:focus { outline: none; }
+    
+    .timer-ring { transition: stroke-dashoffset 1s linear; }
+    
+    input:focus, textarea:focus, select:focus { outline: none; }
+    
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: rgba(255,255,255,0.8);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    
+    .streak-flame {
+      display: inline-block;
+      animation: flicker 0.4s ease-in-out infinite;
+    }
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .chart-bar {
+      transition: all 0.3s ease;
+      border-radius: 4px 4px 0 0;
+    }
+    
+    .mood-selector button {
+      transition: all 0.2s ease;
+      transform: scale(1);
+    }
+    .mood-selector button:hover {
+      transform: scale(1.15);
+    }
+    .mood-selector button.active {
+      transform: scale(1.2);
+    }
+    
+    .priority-badge {
+      display: inline-block;
+      width: 3px;
+      height: 12px;
+      border-radius: 2px;
+      margin-right: 6px;
+    }
+    
+    .expense-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .record-btn {
+      transition: all 0.2s ease;
+    }
+    .record-btn:active {
+      transform: scale(0.95);
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <div class="app-shell grid-bg" id="appShell">
+   <!-- Header -->
+   <header class="px-6 pt-6 pb-4">
+    <div class="max-w-7xl mx-auto">
+     <div class="flex items-center justify-between anim-fade-up" style="animation-delay: 0.05s">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 rounded-xl flex items-center justify-center" id="logoBox">
+        <i data-lucide="zap" style="width:22px;height:22px;color:#fff"></i>
+       </div>
+       <div>
+        <h1 class="text-2xl font-bold tracking-tight" id="appTitle">Ultimate Pro</h1>
+        <p class="text-xs opacity-50" id="welcomeMsg">Complete life management system</p>
+       </div>
+      </div>
+      <div class="flex items-center gap-4">
+       <div class="text-right">
+        <div class="text-xs opacity-50">
+         Productivity
+        </div>
+        <div class="text-lg font-bold" id="prodScore">
+         85%
+        </div>
+       </div>
+       <div class="flex items-center gap-2">
+        <div class="glow-dot" id="glowDot"></div><span class="text-xs opacity-40 font-medium" id="clockDisplay">--:--</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </header><!-- Navigation Tabs -->
+   <nav class="px-6 pb-4" aria-label="App navigation">
+    <div class="max-w-7xl mx-auto">
+     <div class="flex gap-1 p-1 rounded-2xl overflow-x-auto anim-fade-up" id="navBar" style="animation-delay: 0.1s">
+      <button class="tab-btn active flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="dashboard" aria-current="page"> <i data-lucide="layout-dashboard" style="width:16px;height:16px"></i> Dashboard </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="journal"> <i data-lucide="book-open" style="width:16px;height:16px"></i> Journal </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="habits"> <i data-lucide="flame" style="width:16px;height:16px"></i> Habits </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="mood"> <i data-lucide="smile" style="width:16px;height:16px"></i> Mood </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="spending"> <i data-lucide="wallet" style="width:16px;height:16px"></i> Spending </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="goals"> <i data-lucide="target" style="width:16px;height:16px"></i> Goals </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="calendar"> <i data-lucide="calendar" style="width:16px;height:16px"></i> Calendar </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="analytics"> <i data-lucide="bar-chart-3" style="width:16px;height:16px"></i> Analytics </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="calculator"> <i data-lucide="calculator" style="width:16px;height:16px"></i> Calc </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="timer"> <i data-lucide="timer" style="width:16px;height:16px"></i> Timer </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="tasks"> <i data-lucide="check-square" style="width:16px;height:16px"></i> Tasks </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="weather"> <i data-lucide="cloud" style="width:16px;height:16px"></i> Weather </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="budget"> <i data-lucide="pie-chart" style="width:16px;height:16px"></i> Budget </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="health"> <i data-lucide="heart" style="width:16px;height:16px"></i> Health </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="projects"> <i data-lucide="briefcase" style="width:16px;height:16px"></i> Projects </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="ideas"> <i data-lucide="lightbulb" style="width:16px;height:16px"></i> Ideas </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="travel"> <i data-lucide="map-pin" style="width:16px;height:16px"></i> Travel </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="gratitude"> <i data-lucide="heart-handshake" style="width:16px;height:16px"></i> Gratitude </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="skills"> <i data-lucide="zap" style="width:16px;height:16px"></i> Skills </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="collections"> <i data-lucide="folder" style="width:16px;height:16px"></i> Collections </button> <button class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap" data-tab="contacts"> <i data-lucide="users" style="width:16px;height:16px"></i> Contacts </button>
+     </div>
+    </div>
+   </nav><!-- Main Content -->
+   <main class="px-6 pb-8">
+    <div class="max-w-7xl mx-auto">
+     <!-- Dashboard Tab -->
+     <section id="tab-dashboard" class="tab-content">
+      <!-- Advanced Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.1s">
+        <div class="text-xs opacity-50 mb-1">
+         Journal Entries
+        </div>
+        <div class="text-xl font-bold" id="statEntries">
+         0
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="entryTrend">
+         +0 this week
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.15s">
+        <div class="text-xs opacity-50 mb-1">
+         Max Streak
+        </div>
+        <div class="text-xl font-bold flex items-center gap-1"><span id="statStreak">0</span> <span class="streak-flame">🔥</span>
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="streakHabit">
+         Top: --
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.2s">
+        <div class="text-xs opacity-50 mb-1">
+         Mood Score
+        </div>
+        <div class="text-xl font-bold" id="statMood">
+         😐
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="moodTrend">
+         Stable
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.25s">
+        <div class="text-xs opacity-50 mb-1">
+         Weekly Spend
+        </div>
+        <div class="text-xl font-bold">
+         $<span id="statSpending">0</span>
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="spendingForecast">
+         Est: $0
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.3s">
+        <div class="text-xs opacity-50 mb-1">
+         Goals Progress
+        </div>
+        <div class="text-xl font-bold"><span id="statGoals">0</span>%
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="goalsActive">
+         0 active
+        </div>
+       </div>
+       <div class="mini-app-card rounded-xl p-3 stat-card anim-fade-up" style="animation-delay:0.35s">
+        <div class="text-xs opacity-50 mb-1">
+         Task Completion
+        </div>
+        <div class="text-xl font-bold" id="taskCompletion">
+         0%
+        </div>
+        <div class="text-xs opacity-30 mt-1" id="taskToday">
+         0 today
+        </div>
+       </div>
+      </div><!-- AI Insights Panel -->
+      <div class="mini-app-card rounded-2xl p-5 mb-6 anim-fade-up" style="animation-delay:0.4s">
+       <div class="flex items-center gap-2 mb-3"><i data-lucide="brain" style="width:18px;height:18px" class="opacity-60"></i>
+        <h2 class="text-sm font-semibold opacity-70">Smart Insights</h2>
+       </div>
+       <div id="insightsPanel" class="space-y-2 text-sm opacity-80">
+        <p>✨ Start tracking to unlock AI insights</p>
+       </div>
+      </div><!-- Quick Action Cards -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+       <div class="mini-app-card rounded-2xl p-5 anim-fade-up" style="animation-delay:0.35s">
+        <div class="flex items-center gap-2 mb-3">
+         <i data-lucide="pen-tool" style="width:16px;height:16px" class="opacity-60"></i>
+         <h2 class="text-sm font-semibold opacity-70">Quick Thought</h2>
+        </div><textarea id="dashEntry" class="note-area w-full h-16 rounded-lg p-2 text-sm mb-2" placeholder="Capture your thoughts..."></textarea> <button id="dashEntryBtn" class="w-full py-2 rounded-lg font-medium text-sm text-white">Save Thought</button>
+       </div>
+       <div class="mini-app-card rounded-2xl p-5 anim-fade-up" style="animation-delay:0.4s">
+        <div class="flex items-center gap-2 mb-3">
+         <i data-lucide="clock" style="width:16px;height:16px" class="opacity-60"></i>
+         <h2 class="text-sm font-semibold opacity-70">Current Time</h2>
+        </div>
+        <div class="text-3xl font-bold tracking-tight mb-2" id="dashClock">
+         --:--
+        </div>
+        <div class="text-xs opacity-50" id="dashDate">
+         ---
+        </div>
+        <div class="flex gap-2 mt-3">
+         <button id="moodQuickBtn" class="flex-1 py-2 text-2xl rounded-lg transition hover:opacity-80">😐</button> <button class="flex-1 py-1 text-xs rounded-lg opacity-50 hover:opacity-100 transition">+ Mood</button>
+        </div>
+       </div>
+      </div><!-- Weekly Chart -->
+      <div class="mini-app-card rounded-2xl p-5 anim-fade-up" style="animation-delay:0.45s">
+       <div class="flex items-center gap-2 mb-4">
+        <i data-lucide="bar-chart-3" style="width:16px;height:16px" class="opacity-60"></i>
+        <h2 class="text-sm font-semibold opacity-70">Weekly Activity</h2>
+       </div>
+       <div class="flex items-end gap-2 h-24">
+        <div class="flex-1 flex flex-col items-center gap-1">
+         <div class="chart-bar w-full" style="height: 40%; background: rgba(255,107,53,0.4);"></div><span class="text-xs opacity-40">Mon</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+         <div class="chart-bar w-full" style="height: 60%; background: rgba(255,107,53,0.4);"></div><span class="text-xs opacity-40">Tue</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+         <div class="chart-bar w-full" style="height: 80%; background: rgba(255,107,53,0.4);"></div><span class="text-xs opacity-40">Wed</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+         <div class="chart-bar w-full" style="height: 50%; background: rgba(255,107,53,0.4);"></div><span class="text-xs opacity-40">Thu</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+         <div class="chart-bar w-full" style="height: 70%; background: rgba(255,107,53,0.4);"></div><span class="text-xs opacity-40">Fri</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+         <div class="chart-bar w-full" style="height: 45%; background: rgba(255,107,53,0.4);"></div><span class="text-xs opacity-40">Sat</span>
+        </div>
+        <div class="flex-1 flex flex-col items-center gap-1">
+         <div class="chart-bar w-full" style="height: 30%; background: rgba(255,107,53,0.4);"></div><span class="text-xs opacity-40">Sun</span>
+        </div>
+       </div>
+      </div>
+     </section><!-- Journal Tab -->
+     <section id="tab-journal" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-bold flex items-center gap-2"><i data-lucide="book-open" style="width:20px;height:20px"></i> Journal</h2>
+        <div class="text-xs opacity-40" id="journalStats">
+         0 entries
+        </div>
+       </div>
+       <div class="mb-4"><input id="journalSearch" type="text" placeholder="Search entries..." class="search-input w-full rounded-lg px-3 py-2 text-sm">
+       </div>
+       <div id="journalList" class="space-y-3 max-h-96 overflow-y-auto">
+        <div class="text-center py-8 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No entries yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Habits Tab -->
+     <section id="tab-habits" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="flame" style="width:20px;height:20px"></i> Daily Habits</h2>
+       <form id="habitForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="habitInput" type="text" placeholder="New habit..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Create Habit</button>
+       </form>
+       <div id="habitList" class="space-y-2">
+        <div class="text-center py-8 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No habits yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Mood Tab -->
+     <section id="tab-mood" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="smile" style="width:20px;height:20px"></i> Mood Tracker</h2>
+       <div class="mb-6">
+        <p class="text-sm opacity-60 mb-3">How are you feeling today?</p>
+        <div class="mood-selector flex justify-around">
+         <button data-mood="1" class="text-4xl record-btn hover:opacity-80 transition">😢</button> <button data-mood="2" class="text-4xl record-btn hover:opacity-80 transition">😞</button> <button data-mood="3" class="text-4xl record-btn hover:opacity-80 transition">😐</button> <button data-mood="4" class="text-4xl record-btn hover:opacity-80 transition">🙂</button> <button data-mood="5" class="text-4xl record-btn hover:opacity-80 transition">😄</button>
+        </div>
+       </div>
+       <div id="moodHistory" class="space-y-2 max-h-64 overflow-y-auto">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No mood records yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Spending Tab -->
+     <section id="tab-spending" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="wallet" style="width:20px;height:20px"></i> Spending Tracker</h2>
+       <form id="spendingForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="spendingCategory" type="text" placeholder="Category..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="spendingAmount" type="number" placeholder="Amount..." class="w-full rounded-lg px-3 py-2 text-sm" step="0.01"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add Expense</button>
+       </form>
+       <div id="spendingList" class="space-y-1">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No expenses recorded</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Goals Tab -->
+     <section id="tab-goals" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="target" style="width:20px;height:20px"></i> Goals</h2>
+       <form id="goalForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="goalTitle" type="text" placeholder="Goal title..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="goalTarget" type="text" placeholder="Target..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Create Goal</button>
+       </form>
+       <div id="goalList" class="space-y-3">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No goals yet</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Calendar Tab (NEW) -->
+     <section id="tab-calendar" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="calendar" style="width:20px;height:20px"></i> Calendar</h2>
+       <div class="grid grid-cols-7 gap-2 mb-4" id="calendarGrid"></div>
+       <div class="text-xs opacity-50 mt-4">
+        <p id="calendarStats">No events scheduled</p>
+       </div>
+      </div>
+     </section><!-- Analytics Tab (NEW) -->
+     <section id="tab-analytics" class="tab-content hidden">
+      <div class="space-y-4">
+       <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="bar-chart-3" style="width:20px;height:20px"></i> Advanced Analytics</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         <div>
+          <div class="text-sm opacity-60 mb-2">
+           Daily Activity Heatmap
+          </div>
+          <div id="heatmap" class="grid grid-cols-7 gap-1"></div>
+         </div>
+         <div>
+          <div class="text-sm opacity-60 mb-2">
+           Productivity by Day
+          </div>
+          <div id="productivityChart" class="flex items-end gap-2 h-32"></div>
+         </div>
+        </div>
+       </div>
+       <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+        <div class="text-sm opacity-60 mb-2">
+         Time Spent
+        </div>
+        <div id="timeSpent" class="space-y-2"></div>
+       </div>
+      </div>
+     </section>
+     <section id="tab-calculator" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 max-w-sm mx-auto anim-fade-up">
+       <div class="rounded-xl p-4 mb-4 text-right">
+        <div class="text-xs opacity-40 h-5 truncate" id="calcExpr">
+         &nbsp;
+        </div>
+        <div class="text-3xl font-bold tracking-tight" id="calcResult" style="font-family:'JetBrains Mono',monospace">
+         0
+        </div>
+       </div>
+       <div class="grid grid-cols-4 gap-2" id="calcGrid"></div>
+      </div>
+     </section><!-- Timer Tab -->
+     <section id="tab-timer" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 max-w-sm mx-auto text-center anim-fade-up">
+       <h2 class="text-lg font-bold mb-6 flex items-center justify-center gap-2"><i data-lucide="timer" style="width:20px;height:20px"></i> Timer</h2>
+       <div class="relative inline-block mb-6">
+        <svg width="200" height="200" viewbox="0 0 200 200">
+         <circle cx="100" cy="100" r="88" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8" /> <circle id="timerArc" class="timer-ring" cx="100" cy="100" r="88" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray="553" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+        </svg>
+        <div class="absolute inset-0 flex items-center justify-center">
+         <span class="text-4xl font-bold" id="timerDisplay" style="font-family:'JetBrains Mono',monospace">5:00</span>
+        </div>
+       </div>
+       <div class="flex items-center justify-center gap-3 mb-4">
+        <label for="timerMinutes" class="text-sm font-medium opacity-60">Minutes:</label> <select id="timerMinutes" class="rounded-lg px-3 py-2 text-sm font-medium"> <option value="1">1</option> <option value="5" selected>5</option> <option value="10">10</option> <option value="25">25</option> </select>
+       </div>
+       <div class="flex justify-center gap-3">
+        <button id="timerStart" class="px-6 py-2.5 rounded-xl font-semibold text-sm text-white">Start</button> <button id="timerReset" class="px-6 py-2.5 rounded-xl font-semibold text-sm opacity-60">Reset</button>
+       </div>
+      </div>
+     </section><!-- Tasks Tab -->
+     <section id="tab-tasks" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="check-square" style="width:20px;height:20px"></i> Tasks</h2>
+       <form id="taskForm" class="flex gap-2 mb-4">
+        <input id="taskInput" type="text" placeholder="Add a task..." class="flex-1 rounded-xl px-4 py-2.5 text-sm"> <button type="submit" class="px-4 py-2.5 rounded-xl font-semibold text-sm text-white">Add</button>
+       </form>
+       <ul id="taskList" class="space-y-2"></ul>
+       <div class="text-center py-6 opacity-30" id="taskEmpty">
+        <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+        <p class="text-sm">No tasks</p>
+       </div>
+      </div>
+     </section><!-- Weather Tab -->
+     <section id="tab-weather" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="cloud" style="width:20px;height:20px"></i> Weather &amp; Astro</h2>
+       <div class="grid grid-cols-2 gap-3 mb-4">
+        <div class="rounded-lg p-3" style="background:rgba(255,255,255,0.05)">
+         <div class="text-xs opacity-60">
+          Today
+         </div>
+         <div class="text-2xl mt-1">
+          72°F
+         </div>
+         <div class="text-xs opacity-50">
+          Sunny
+         </div>
+        </div>
+        <div class="rounded-lg p-3" style="background:rgba(255,255,255,0.05)">
+         <div class="text-xs opacity-60">
+          Astro Event
+         </div>
+         <div class="text-sm mt-1">
+          🌕 Full Moon
+         </div>
+         <div class="text-xs opacity-50">
+          in 5 days
+         </div>
+        </div>
+       </div>
+       <div id="weatherLog" class="space-y-2 max-h-64 overflow-y-auto">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No records</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Budget Tab -->
+     <section id="tab-budget" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="pie-chart" style="width:20px;height:20px"></i> Budget Planner</h2>
+       <form id="budgetForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="budgetCategory" type="text" placeholder="Category..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="budgetLimit" type="number" placeholder="Limit..." class="w-full rounded-lg px-3 py-2 text-sm" step="0.01"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Set Budget</button>
+       </form>
+       <div id="budgetList" class="space-y-2">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No budgets</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Health Tab -->
+     <section id="tab-health" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="heart" style="width:20px;height:20px"></i> Health &amp; Vitals</h2>
+       <form id="healthForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="healthType" type="text" placeholder="Metric (Weight, BP, Sleep)..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="healthValue" type="number" placeholder="Value..." class="w-full rounded-lg px-3 py-2 text-sm" step="0.1"> <input id="healthUnit" type="text" placeholder="Unit (lbs, mmHg, hrs)..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Log Metric</button>
+       </form>
+       <div id="healthList" class="space-y-2">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No vitals</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Projects Tab -->
+     <section id="tab-projects" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="briefcase" style="width:20px;height:20px"></i> Projects</h2>
+       <form id="projectForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="projectName" type="text" placeholder="Project name..." class="w-full rounded-lg px-3 py-2 text-sm"> <textarea id="projectDesc" class="note-area w-full h-12 rounded-lg p-2 text-sm" placeholder="Description..."></textarea> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Create Project</button>
+       </form>
+       <div id="projectList" class="space-y-3">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No projects</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Ideas Tab -->
+     <section id="tab-ideas" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="lightbulb" style="width:20px;height:20px"></i> Ideas &amp; Inspiration</h2>
+       <form id="ideaForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="ideaTitle" type="text" placeholder="Idea..." class="w-full rounded-lg px-3 py-2 text-sm"> <textarea id="ideaDetails" class="note-area w-full h-12 rounded-lg p-2 text-sm" placeholder="Details..."></textarea> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Save Idea</button>
+       </form>
+       <div id="ideaList" class="space-y-3">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No ideas</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Travel Tab -->
+     <section id="tab-travel" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="map-pin" style="width:20px;height:20px"></i> Travel Planner</h2>
+       <form id="travelForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="travelDest" type="text" placeholder="Destination..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="travelDate" type="text" placeholder="Date..." class="w-full rounded-lg px-3 py-2 text-sm"> <textarea id="travelPlan" class="note-area w-full h-12 rounded-lg p-2 text-sm" placeholder="Plan..."></textarea> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add Trip</button>
+       </form>
+       <div id="travelList" class="space-y-3">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No trips</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Gratitude Tab -->
+     <section id="tab-gratitude" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="smile" style="width:20px;height:20px"></i> Gratitude Journal</h2><textarea id="gratitudeInput" class="note-area w-full h-20 rounded-lg p-2 text-sm mb-2" placeholder="What are you grateful for today?"></textarea> <button id="gratitudeBtn" class="w-full py-2 rounded-lg font-medium text-sm text-white mb-4">Save Gratitude</button>
+       <div id="gratitudeList" class="space-y-3 max-h-96 overflow-y-auto">
+        <div class="text-center py-8 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No entries</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Skills Tab -->
+     <section id="tab-skills" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="zap" style="width:20px;height:20px"></i> Skills &amp; Learning</h2>
+       <form id="skillForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="skillName" type="text" placeholder="Skill..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="skillLevel" type="text" placeholder="Level (Beginner/Intermediate/Expert)..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add Skill</button>
+       </form>
+       <div id="skillList" class="space-y-2">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No skills</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Collections Tab -->
+     <section id="tab-collections" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="folder" style="width:20px;height:20px"></i> Collections</h2>
+       <form id="collectionForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="collectionName" type="text" placeholder="Item name..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="collectionCategory" type="text" placeholder="Category..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add to Collection</button>
+       </form>
+       <div id="collectionList" class="space-y-2">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No items</p>
+        </div>
+       </div>
+      </div>
+     </section><!-- Contacts Tab -->
+     <section id="tab-contacts" class="tab-content hidden">
+      <div class="mini-app-card rounded-2xl p-6 anim-fade-up">
+       <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><i data-lucide="users" style="width:20px;height:20px"></i> Contacts &amp; Relationships</h2>
+       <form id="contactForm" class="mb-4 pb-4 border-b border-white border-opacity-10 space-y-2">
+        <input id="contactName" type="text" placeholder="Name..." class="w-full rounded-lg px-3 py-2 text-sm"> <input id="contactInfo" type="text" placeholder="Phone/Email..." class="w-full rounded-lg px-3 py-2 text-sm"> <button type="submit" class="w-full py-2 rounded-lg font-medium text-sm text-white">Add Contact</button>
+       </form>
+       <div id="contactList" class="space-y-2">
+        <div class="text-center py-6 opacity-30">
+         <i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i>
+         <p class="text-sm">No contacts</p>
+        </div>
+       </div>
+      </div>
+     </section>
+    </div>
+   </main>
+  </div>
+  <script>
+    const defaultConfig = {
+      app_title: 'Ultimate Pro',
+      welcome_message: 'Complete life management system',
+      background_color: '#0f1117',
+      surface_color: '#1a1d27',
+      text_color: '#e8e6e3',
+      primary_action: '#ff6b35',
+      secondary_action: '#3b82f6',
+      font_family: 'Outfit',
+      font_size: 16
+    };
+    
+    let allData = [];
+    let tasks = [], habits = [], goals = [], entries = [], moods = [], spending = [];
+    let calcValue = '0', calcExpression = '', calcPrevOp = null, calcPrevVal = 0, calcNewInput = true;
+    let timerTotal = 300, timerRemaining = 300, timerInterval = null, timerRunning = false;
+    
+    // New data arrays
+    let weather = [], budget = [], health = [], projects = [], ideas = [], travel = [], gratitude = [], skills = [], collections = [], contacts = [];
+    
+    // Advanced tracking
+    const activityTracker = {};
+    const categoryStats = {};
+    
+    function generateSmartInsights() {
+      const insights = [];
+      
+      // Mood insights
+      if (moods.length >= 3) {
+        const recent = moods.slice(-7).map(m => parseInt(m.data));
+        const avg = recent.reduce((a,b) => a+b, 0) / recent.length;
+        if (avg >= 4) insights.push('💪 Amazing mood this week! Keep it up!');
+        else if (avg <= 2) insights.push('💙 Take a break—you deserve rest.');
+        else insights.push('😐 Mood is stable. Stay balanced!');
+      }
+      
+      // Habit consistency
+      const topHabit = habits.reduce((max, h) => {
+        const count = JSON.parse(h.data || '{}').count || 0;
+        return count > (max.count || 0) ? { habit: h, count } : max;
+      }, {});
+      if (topHabit.habit) {
+        insights.push(`🔥 ${topHabit.habit.title}: ${topHabit.count} times completed!`);
+      }
+      
+      // Spending forecast
+      if (spending.length >= 5) {
+        const weekSpend = spending.filter(s => {
+          const age = Date.now() - new Date(s.timestamp).getTime();
+          return age < 7 * 24 * 60 * 60 * 1000;
+        }).reduce((sum, s) => sum + parseFloat(s.data || 0), 0);
+        const forecast = (weekSpend * 4).toFixed(2);
+        insights.push(`💰 Forecasted monthly spend: $${forecast}`);
+      }
+      
+      // Goal momentum
+      const goalProgress = goals.filter(g => parseInt(g.data) > 0).length;
+      if (goalProgress > 0) {
+        insights.push(`🎯 ${goalProgress} active goal${goalProgress > 1 ? 's' : ''} in progress!`);
+      }
+      
+      // Task productivity
+      if (tasks.length > 0) {
+        const completed = tasks.filter(t => t.data === 'completed').length;
+        const rate = Math.round((completed / tasks.length) * 100);
+        if (rate >= 80) insights.push(`✨ Stellar 80%+ completion rate!`);
+        else if (rate >= 50) insights.push(`⚡ You're ${rate}% through your tasks!`);
+      }
+      
+      // Journal consistency
+      if (entries.length >= 7) {
+        insights.push(`📝 ${entries.length} deep thoughts captured!`);
+      }
+      
+      return insights.length > 0 ? insights : ['✨ Keep tracking to unlock insights'];
+    }
+    
+    // Data SDK
+    const dataHandler = {
+      onDataChanged(data) {
+        allData = data || [];
+        tasks = allData.filter(d => d.type === 'task');
+        habits = allData.filter(d => d.type === 'habit');
+        goals = allData.filter(d => d.type === 'goal');
+        entries = allData.filter(d => d.type === 'journal');
+        moods = allData.filter(d => d.type === 'mood');
+        spending = allData.filter(d => d.type === 'spending');
+        weather = allData.filter(d => d.type === 'weather');
+        budget = allData.filter(d => d.type === 'budget');
+        health = allData.filter(d => d.type === 'health');
+        projects = allData.filter(d => d.type === 'project');
+        ideas = allData.filter(d => d.type === 'idea');
+        travel = allData.filter(d => d.type === 'travel');
+        gratitude = allData.filter(d => d.type === 'gratitude');
+        skills = allData.filter(d => d.type === 'skill');
+        collections = allData.filter(d => d.type === 'collection');
+        contacts = allData.filter(d => d.type === 'contact');
+        
+        // Dashboard stats
+        document.getElementById('statEntries').textContent = entries.length;
+        const entryTrend = entries.filter(e => {
+          const age = Date.now() - new Date(e.timestamp).getTime();
+          return age < 7 * 24 * 60 * 60 * 1000;
+        }).length;
+        document.getElementById('entryTrend').textContent = `+${entryTrend} this week`;
+        
+        // Top habit streak
+        const topHabit = habits.reduce((max, h) => {
+          const count = JSON.parse(h.data || '{}').count || 0;
+          return count > (max.count || 0) ? { habit: h, count } : max;
+        }, {});
+        document.getElementById('statStreak').textContent = topHabit.count || 0;
+        document.getElementById('streakHabit').textContent = topHabit.habit ? `Top: ${topHabit.habit.title}` : 'Top: --';
+        
+        document.getElementById('statMood').textContent = calculateMoodEmoji();
+        const moodTrend = moods.length >= 3 ? 'Stable' : 'New';
+        document.getElementById('moodTrend').textContent = moodTrend;
+        
+        const totalSpending = spending.reduce((sum, s) => sum + (parseFloat(s.data) || 0), 0);
+        document.getElementById('statSpending').textContent = totalSpending.toFixed(2);
+        const forecast = (totalSpending * 4).toFixed(2);
+        document.getElementById('spendingForecast').textContent = `Est: $${forecast}`;
+        
+        const completedGoals = goals.filter(g => g.data && parseInt(g.data) >= 50).length;
+        const goalPercent = goals.length > 0 ? Math.round((completedGoals / goals.length) * 100) : 0;
+        document.getElementById('statGoals').textContent = goalPercent;
+        document.getElementById('goalsActive').textContent = `${goals.length} active`;
+        
+        const taskCompleted = tasks.filter(t => t.data === 'completed').length;
+        const taskPercent = tasks.length > 0 ? Math.round((taskCompleted / tasks.length) * 100) : 0;
+        document.getElementById('taskCompletion').textContent = taskPercent + '%';
+        const taskToday = tasks.filter(t => {
+          const age = Date.now() - new Date(t.timestamp).getTime();
+          return age < 24 * 60 * 60 * 1000;
+        }).length;
+        document.getElementById('taskToday').textContent = `${taskToday} today`;
+        
+        const productivityScore = tasks.length > 0 ? taskPercent : 0;
+        document.getElementById('prodScore').textContent = productivityScore + '%';
+        
+        // Smart insights
+        const insights = generateSmartInsights();
+        const insightsPanel = document.getElementById('insightsPanel');
+        insightsPanel.innerHTML = insights.map(i => `<p>${i}</p>`).join('');
+        
+        // Render all sections
+        renderJournalList(entries);
+        renderHabitList();
+        renderGoalList();
+        renderTasks();
+        renderMoodHistory();
+        renderSpendingList();
+        renderCalendar();
+        renderAnalytics();
+      }
+    };
+    
+    (async () => {
+      const result = await window.dataSdk.init(dataHandler);
+      if (!result.isOk) console.error('Data SDK failed');
+    })();
+    
+    // Element SDK
+    window.elementSdk.init({
+      defaultConfig,
+      onConfigChange: async (config) => applyConfig(config),
+      mapToCapabilities: (config) => ({
+        recolorables: [
+          { get: () => config.background_color || defaultConfig.background_color, set: v => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+          { get: () => config.surface_color || defaultConfig.surface_color, set: v => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+          { get: () => config.text_color || defaultConfig.text_color, set: v => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+          { get: () => config.primary_action || defaultConfig.primary_action, set: v => { config.primary_action = v; window.elementSdk.setConfig({ primary_action: v }); } },
+          { get: () => config.secondary_action || defaultConfig.secondary_action, set: v => { config.secondary_action = v; window.elementSdk.setConfig({ secondary_action: v }); } }
+        ],
+        borderables: [],
+        fontEditable: { get: () => config.font_family || defaultConfig.font_family, set: v => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); } },
+        fontSizeable: { get: () => config.font_size || defaultConfig.font_size, set: v => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); } }
+      }),
+      mapToEditPanelValues: (config) => new Map([
+        ['app_title', config.app_title || defaultConfig.app_title],
+        ['welcome_message', config.welcome_message || defaultConfig.welcome_message]
+      ])
+    });
+    
+    function hexAlpha(hex, alpha) {
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+    
+    function applyConfig(c) {
+      const bg = c.background_color || defaultConfig.background_color;
+      const sf = c.surface_color || defaultConfig.surface_color;
+      const tx = c.text_color || defaultConfig.text_color;
+      const pa = c.primary_action || defaultConfig.primary_action;
+      
+      const shell = document.getElementById('appShell');
+      shell.style.backgroundColor = bg;
+      shell.style.color = tx;
+      shell.style.fontFamily = `${c.font_family || defaultConfig.font_family}, Outfit, sans-serif`;
+      shell.style.fontSize = `${c.font_size || defaultConfig.font_size}px`;
+      
+      document.getElementById('appTitle').textContent = c.app_title || defaultConfig.app_title;
+      document.getElementById('welcomeMsg').textContent = c.welcome_message || defaultConfig.welcome_message;
+      document.getElementById('logoBox').style.background = pa;
+      document.getElementById('glowDot').style.background = pa;
+      document.getElementById('navBar').style.background = sf;
+      
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.style.background = btn.classList.contains('active') ? hexAlpha(pa, 0.15) : 'transparent';
+        btn.style.color = btn.classList.contains('active') ? pa : tx;
+      });
+      
+      document.querySelectorAll('.mini-app-card').forEach(el => el.style.background = sf);
+      document.querySelectorAll('textarea, input[type="text"], input[type="number"], select').forEach(el => {
+        el.style.background = hexAlpha(bg, 0.6);
+        el.style.color = tx;
+        el.style.border = `1px solid ${hexAlpha(tx, 0.08)}`;
+      });
+      
+      document.querySelectorAll('button').forEach(btn => {
+        if (btn.textContent.includes('Start') || btn.textContent.includes('Add') || btn.textContent.includes('Save') || btn.textContent.includes('Create')) {
+          btn.style.background = pa;
+        }
+      });
+      
+      document.getElementById('timerArc').style.stroke = pa;
+      rebuildCalcButtons(bg, sf, tx, pa);
+      renderTasks();
+    }
+    
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      const t = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('clockDisplay').textContent = t;
+      document.getElementById('dashClock').textContent = t;
+      document.getElementById('dashDate').textContent = now.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    
+    // Tab Navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('active');
+          b.removeAttribute('aria-current');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-current', 'page');
+        
+        document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
+        document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+        
+        const cfg = window.elementSdk.config;
+        const pa = cfg.primary_action || defaultConfig.primary_action;
+        const tx = cfg.text_color || defaultConfig.text_color;
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.style.background = b.classList.contains('active') ? hexAlpha(pa, 0.15) : 'transparent';
+          b.style.color = b.classList.contains('active') ? pa : tx;
+        });
+        
+        lucide.createIcons();
+      });
+    });
+    
+    // Journal
+    document.getElementById('dashEntryBtn').addEventListener('click', async () => {
+      const text = document.getElementById('dashEntry').value.trim();
+      if (!text) return;
+      await window.dataSdk.create({
+        type: 'journal',
+        title: text.substring(0, 50),
+        content: text,
+        data: '',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'general'
+      });
+      document.getElementById('dashEntry').value = '';
+    });
+    
+    document.getElementById('journalSearch').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = entries.filter(d => d.title.toLowerCase().includes(query) || d.content.toLowerCase().includes(query));
+      renderJournalList(filtered);
+    });
+    
+    function renderJournalList(list) {
+      const container = document.getElementById('journalList');
+      if (list.length === 0) {
+        container.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No entries</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      list.forEach(entry => {
+        let el = existing.get(entry.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = entry.id;
+          el.className = 'mini-app-card rounded-lg p-3 cursor-pointer';
+          el.addEventListener('click', async () => {
+            const newContent = prompt('Edit:', entry.content);
+            if (newContent) {
+              await window.dataSdk.update({ ...entry, content: newContent, title: newContent.substring(0, 50) });
+            }
+          });
+          container.appendChild(el);
+          existing.delete(entry.id);
+        }
+        const date = new Date(entry.timestamp).toLocaleDateString();
+        el.innerHTML = `<div class="text-xs opacity-50 mb-1">${date}</div><div class="text-sm font-medium truncate">${entry.title}</div><div class="text-xs opacity-60 line-clamp-2">${entry.content}</div>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Habits
+    document.getElementById('habitForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('habitInput').value.trim();
+      if (!text) return;
+      await window.dataSdk.create({
+        type: 'habit',
+        title: text,
+        content: '',
+        data: JSON.stringify({ count: 0 }),
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'health'
+      });
+      document.getElementById('habitInput').value = '';
+    });
+    
+    function renderHabitList() {
+      const list = document.getElementById('habitList');
+      if (habits.length === 0) {
+        list.innerHTML = '<div class="text-center py-8 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No habits</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      
+      const existing = new Map([...list.children].map(el => [el.dataset.id, el]));
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      
+      habits.forEach(habit => {
+        let el = existing.get(habit.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = habit.id;
+          el.className = 'mini-app-card rounded-lg p-3 flex items-center justify-between';
+          list.appendChild(el);
+          existing.delete(habit.id);
+        }
+        
+        let data = {};
+        try { data = JSON.parse(habit.data); } catch (e) { }
+        
+        el.innerHTML = `
+          <span class="flex-1 font-medium">${habit.title} <span class="text-xs opacity-50 ml-1">×${data.count || 0}</span></span>
+          <div class="flex gap-1">
+            <button class="px-2 py-1 text-xs rounded transition" style="background: ${hexAlpha(pa, 0.2)}; color: ${pa};">+</button>
+            <button class="px-2 py-1 text-xs rounded opacity-40 hover:opacity-100">✕</button>
+          </div>
+        `;
+        
+        el.querySelector('button:nth-child(1)').addEventListener('click', async () => {
+          const newData = JSON.stringify({ count: (data.count || 0) + 1 });
+          await window.dataSdk.update({ ...habit, data: newData });
+        });
+        
+        el.querySelector('button:nth-child(2)').addEventListener('click', async () => {
+          await window.dataSdk.delete(habit);
+        });
+      });
+      
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Mood
+    function calculateMoodEmoji() {
+      if (moods.length === 0) return '😐';
+      const avg = moods.reduce((sum, m) => sum + parseInt(m.data), 0) / moods.length;
+      if (avg >= 4) return '😄';
+      if (avg >= 3) return '🙂';
+      if (avg >= 2) return '😐';
+      return '😞';
+    }
+    
+    document.querySelectorAll('.mood-selector button').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        document.querySelectorAll('.mood-selector button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        await window.dataSdk.create({
+          type: 'mood',
+          title: btn.getAttribute('data-mood'),
+          content: btn.textContent,
+          data: btn.getAttribute('data-mood'),
+          tags: '',
+          timestamp: new Date().toISOString(),
+          priority: 'normal',
+          status: 'active',
+          category: 'wellness'
+        });
+      });
+    });
+    
+    function renderMoodHistory() {
+      const container = document.getElementById('moodHistory');
+      if (moods.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No records</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      moods.slice(-7).reverse().forEach(mood => {
+        let el = existing.get(mood.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = mood.id;
+          el.className = 'flex items-center justify-between text-sm p-2 rounded opacity-70';
+          container.appendChild(el);
+          existing.delete(mood.id);
+        }
+        const date = new Date(mood.timestamp).toLocaleDateString();
+        el.textContent = '';
+        el.innerHTML = `<span>${date}</span><span class="text-2xl">${mood.content}</span>`;
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Spending
+    document.getElementById('spendingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const category = document.getElementById('spendingCategory').value.trim();
+      const amount = document.getElementById('spendingAmount').value.trim();
+      if (!category || !amount) return;
+      
+      await window.dataSdk.create({
+        type: 'spending',
+        title: category,
+        content: '',
+        data: amount,
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: category
+      });
+      
+      document.getElementById('spendingCategory').value = '';
+      document.getElementById('spendingAmount').value = '';
+    });
+    
+    function renderSpendingList() {
+      const container = document.getElementById('spendingList');
+      if (spending.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No expenses</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      
+      const existing = new Map([...container.children].map(el => [el.dataset.id, el]));
+      spending.slice(-10).reverse().forEach(item => {
+        let el = existing.get(item.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = item.id;
+          el.className = 'expense-item';
+          container.appendChild(el);
+          existing.delete(item.id);
+        }
+        el.innerHTML = `
+          <span class="flex-1 text-sm">${item.title}</span>
+          <span class="font-semibold text-sm">$${parseFloat(item.data).toFixed(2)}</span>
+          <button class="ml-2 text-xs opacity-40 hover:opacity-100">✕</button>
+        `;
+        el.querySelector('button').addEventListener('click', async () => {
+          await window.dataSdk.delete(item);
+        });
+      });
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Goals
+    document.getElementById('goalForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('goalTitle').value.trim();
+      const target = document.getElementById('goalTarget').value.trim();
+      if (!title) return;
+      
+      await window.dataSdk.create({
+        type: 'goal',
+        title,
+        content: target,
+        data: '0',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'high',
+        status: 'active',
+        category: 'personal'
+      });
+      
+      document.getElementById('goalTitle').value = '';
+      document.getElementById('goalTarget').value = '';
+    });
+    
+    function renderGoalList() {
+      const list = document.getElementById('goalList');
+      if (goals.length === 0) {
+        list.innerHTML = '<div class="text-center py-6 opacity-30"><i data-lucide="inbox" style="width:32px;height:32px;margin:0 auto 8px"></i><p class="text-sm">No goals</p></div>';
+        lucide.createIcons();
+        return;
+      }
+      
+      const existing = new Map([...list.children].map(el => [el.dataset.id, el]));
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      
+      goals.forEach(goal => {
+        let el = existing.get(goal.id);
+        if (!el) {
+          el = document.createElement('div');
+          el.dataset.id = goal.id;
+          el.className = 'mini-app-card rounded-lg p-3';
+          list.appendChild(el);
+          existing.delete(goal.id);
+        }
+        
+        const current = parseInt(goal.data) || 0;
+        const target = goal.content || '?';
+        const percent = target !== '?' ? Math.min(100, Math.round((current / parseInt(target)) * 100)) : 0;
+        
+        el.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-medium">${goal.title}</span>
+            <button class="text-xs opacity-40 hover:opacity-100">✕</button>
+          </div>
+          <div class="text-xs opacity-60 mb-2">${current}/${target}</div>
+          <div class="w-full h-2 rounded bg-white bg-opacity-10 overflow-hidden">
+            <div class="h-full transition-all" style="width: ${percent}%; background: ${pa};"></div>
+          </div>
+        `;
+        
+        el.querySelector('button').addEventListener('click', async () => {
+          await window.dataSdk.delete(goal);
+        });
+      });
+      
+      existing.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Calculator
+    const calcButtons = ['C', '±', '%', '÷', '7', '8', '9', '×', '4', '5', '6', '−', '1', '2', '3', '+', '0', '.', '⌫', '='];
+    
+    function rebuildCalcButtons(bg, sf, tx, pa) {
+      const grid = document.getElementById('calcGrid');
+      grid.innerHTML = '';
+      calcButtons.forEach(label => {
+        const btn = document.createElement('button');
+        btn.className = 'calc-btn rounded-xl py-3 text-base font-semibold';
+        btn.textContent = label;
+        
+        if (label === '=') btn.style.background = pa;
+        else if (['÷','×','−','+'].includes(label)) btn.style.background = hexAlpha(pa, 0.12);
+        else btn.style.background = hexAlpha(bg, 0.5);
+        
+        btn.addEventListener('click', () => handleCalc(label));
+        grid.appendChild(btn);
+      });
+    }
+    
+    function handleCalc(label) {
+      if (label === 'C') {
+        calcValue = '0'; calcExpression = ''; calcPrevOp = null; calcPrevVal = 0; calcNewInput = true;
+      } else if (label === '⌫') {
+        calcValue = calcValue.length > 1 ? calcValue.slice(0, -1) : '0';
+      } else if (label === '±') {
+        calcValue = calcValue.startsWith('-') ? calcValue.slice(1) : '-' + calcValue;
+      } else if (label === '%') {
+        calcValue = String(parseFloat(calcValue) / 100);
+      } else if ('÷×−+'.includes(label)) {
+        if (calcPrevOp && !calcNewInput) {
+          calcValue = String(evaluate(calcPrevVal, parseFloat(calcValue), calcPrevOp));
+        }
+        calcPrevVal = parseFloat(calcValue);
+        calcPrevOp = label;
+        calcExpression = calcValue + ' ' + label;
+        calcNewInput = true;
+      } else if (label === '=') {
+        if (calcPrevOp) {
+          calcExpression = calcPrevVal + ' ' + calcPrevOp + ' ' + calcValue;
+          calcValue = String(evaluate(calcPrevVal, parseFloat(calcValue), calcPrevOp));
+          calcPrevOp = null;
+        }
+        calcNewInput = true;
+      } else if (label === '.') {
+        if (calcNewInput) { calcValue = '0.'; calcNewInput = false; }
+        else if (!calcValue.includes('.')) calcValue += '.';
+      } else {
+        if (calcNewInput) { calcValue = label; calcNewInput = false; }
+        else calcValue += label;
+      }
+      
+      document.getElementById('calcResult').textContent = calcValue;
+      document.getElementById('calcExpr').textContent = calcExpression || '\u00A0';
+    }
+    
+    function evaluate(a, b, op) {
+      switch(op) {
+        case '+': return a + b;
+        case '−': return a - b;
+        case '×': return a * b;
+        case '÷': return b !== 0 ? a / b : 0;
+      }
+      return b;
+    }
+    
+    // Timer
+    document.getElementById('timerMinutes').addEventListener('change', () => {
+      if (!timerRunning) {
+        timerTotal = parseInt(document.getElementById('timerMinutes').value) * 60;
+        timerRemaining = timerTotal;
+        updateTimerUI();
+      }
+    });
+    
+    document.getElementById('timerStart').addEventListener('click', () => {
+      if (timerRunning) {
+        clearInterval(timerInterval);
+        timerRunning = false;
+        document.getElementById('timerStart').textContent = 'Start';
+      } else {
+        if (timerRemaining <= 0) timerRemaining = timerTotal;
+        timerRunning = true;
+        document.getElementById('timerStart').textContent = 'Pause';
+        timerInterval = setInterval(() => {
+          timerRemaining--;
+          if (timerRemaining <= 0) {
+            timerRemaining = 0;
+            clearInterval(timerInterval);
+            timerRunning = false;
+            document.getElementById('timerStart').textContent = 'Start';
+          }
+          updateTimerUI();
+        }, 1000);
+      }
+    });
+    
+    document.getElementById('timerReset').addEventListener('click', () => {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      timerTotal = parseInt(document.getElementById('timerMinutes').value) * 60;
+      timerRemaining = timerTotal;
+      updateTimerUI();
+      document.getElementById('timerStart').textContent = 'Start';
+    });
+    
+    function updateTimerUI() {
+      const m = Math.floor(timerRemaining / 60);
+      const s = timerRemaining % 60;
+      document.getElementById('timerDisplay').textContent = m + ':' + String(s).padStart(2, '0');
+      const offset = timerTotal > 0 ? (1 - timerRemaining / timerTotal) * 553 : 0;
+      document.getElementById('timerArc').style.strokeDashoffset = offset;
+    }
+    updateTimerUI();
+    
+    // Tasks
+    document.getElementById('taskForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = document.getElementById('taskInput').value.trim();
+      if (!text) return;
+      
+      await window.dataSdk.create({
+        type: 'task',
+        title: text,
+        content: '',
+        data: 'pending',
+        tags: '',
+        timestamp: new Date().toISOString(),
+        priority: 'normal',
+        status: 'active',
+        category: 'work'
+      });
+      
+      document.getElementById('taskInput').value = '';
+    });
+    
+    function renderTasks() {
+      const list = document.getElementById('taskList');
+      const empty = document.getElementById('taskEmpty');
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      const bg = cfg.background_color || defaultConfig.background_color;
+      const tx = cfg.text_color || defaultConfig.text_color;
+      
+      empty.style.display = tasks.length === 0 ? 'block' : 'none';
+      
+      const existingMap = new Map([...list.children].map(el => [el.dataset.taskId, el]));
+      
+      tasks.forEach(task => {
+        let li = existingMap.get(task.id);
+        if (li) {
+          existingMap.delete(task.id);
+        } else {
+          li = document.createElement('li');
+          li.dataset.taskId = task.id;
+          li.className = 'flex items-center gap-3 p-3 rounded-xl transition-all';
+          li.innerHTML = `
+            <button class="task-check w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0"></button>
+            <span class="task-text flex-1 text-sm font-medium"></span>
+            <button class="task-del opacity-30 hover:opacity-100 transition">
+              <i data-lucide="x" style="width:14px;height:14px"></i>
+            </button>
+          `;
+          li.querySelector('.task-check').addEventListener('click', async () => {
+            const newData = task.data === 'completed' ? 'pending' : 'completed';
+            await window.dataSdk.update({ ...task, data: newData });
+          });
+          li.querySelector('.task-del').addEventListener('click', async () => {
+            await window.dataSdk.delete(task);
+          });
+          list.appendChild(li);
+        }
+        
+        li.style.background = hexAlpha(bg, 0.4);
+        const check = li.querySelector('.task-check');
+        const text = li.querySelector('.task-text');
+        text.textContent = task.title;
+        
+        if (task.data === 'completed') {
+          check.style.background = pa;
+          check.style.borderColor = pa;
+          check.innerHTML = '<i data-lucide="check" style="width:12px;height:12px;color:#fff"></i>';
+          text.style.opacity = '0.4';
+          text.style.textDecoration = 'line-through';
+        } else {
+          check.style.background = 'transparent';
+          check.style.borderColor = hexAlpha(tx, 0.3);
+          check.innerHTML = '';
+          text.style.opacity = '1';
+          text.style.textDecoration = 'none';
+        }
+      });
+      
+      existingMap.forEach(el => el.remove());
+      lucide.createIcons();
+    }
+    
+    // Calendar rendering
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      grid.innerHTML = '';
+      const today = new Date();
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      
+      for (let i = 0; i < firstDay.getDay(); i++) {
+        const empty = document.createElement('div');
+        grid.appendChild(empty);
+      }
+      
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const cell = document.createElement('div');
+        const dateStr = new Date(today.getFullYear(), today.getMonth(), day).toDateString();
+        const hasEntry = entries.some(e => new Date(e.timestamp).toDateString() === dateStr);
+        
+        cell.className = 'rounded p-2 text-xs font-semibold text-center cursor-pointer transition';
+        cell.style.background = hasEntry ? hexAlpha(pa, 0.3) : hexAlpha(cfg.background_color || defaultConfig.background_color, 0.3);
+        cell.style.border = hasEntry ? `1px solid ${pa}` : 'none';
+        cell.textContent = day;
+        grid.appendChild(cell);
+      }
+    }
+    
+    // Analytics rendering
+    function renderAnalytics() {
+      // Heatmap
+      const heatmap = document.getElementById('heatmap');
+      heatmap.innerHTML = '';
+      const cfg = window.elementSdk.config || defaultConfig;
+      const pa = cfg.primary_action || defaultConfig.primary_action;
+      
+      for (let i = 0; i < 42; i++) {
+        const day = new Date();
+        day.setDate(day.getDate() - (41 - i));
+        const dateStr = day.toDateString();
+        const entryCount = entries.filter(e => new Date(e.timestamp).toDateString() === dateStr).length;
+        
+        const cell = document.createElement('div');
+        const intensity = Math.min(entryCount / 3, 1);
+        cell.className = 'w-4 h-4 rounded-sm';
+        cell.style.background = intensity > 0 ? hexAlpha(pa, 0.3 + intensity * 0.6) : 'transparent';
+        cell.style.border = `1px solid ${hexAlpha(pa, 0.1)}`;
+        heatmap.appendChild(cell);
+      }
+      
+      // Productivity chart
+      const chart = document.getElementById('productivityChart');
+      chart.innerHTML = '';
+      for (let i = 6; i >= 0; i--) {
+        const day = new Date();
+        day.setDate(day.getDate() - i);
+        const dateStr = day.toDateString();
+        const dayTasks = tasks.filter(t => new Date(t.timestamp).toDateString() === dateStr).length;
+        const dayCompleted = tasks.filter(t => new Date(t.timestamp).toDateString() === dateStr && t.data === 'completed').length;
+        const height = dayTasks > 0 ? (dayCompleted / dayTasks * 100) : 0;
+        
+        const bar = document.createElement('div');
+        bar.className = 'flex-1 rounded-t transition';
+        bar.style.height = height + '%';
+        bar.style.background = height > 0 ? pa : hexAlpha(pa, 0.1);
+        bar.title = `${dayCompleted}/${dayTasks} tasks`;
+        chart.appendChild(bar);
+      }
+      
+      // Time spent
+      const timeSpent = document.getElementById('timeSpent');
+      timeSpent.innerHTML = '';
+      const categoryTotals = {};
+      allData.forEach(item => {
+        if (!categoryTotals[item.category]) categoryTotals[item.category] = 0;
+        categoryTotals[item.category]++;
+      });
+      
+      Object.entries(categoryTotals).forEach(([cat, count]) => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3';
+        row.innerHTML = `
+          <span class="text-xs font-medium w-20 truncate">${cat}</span>
+          <div class="flex-1 h-2 rounded bg-white bg-opacity-10 overflow-hidden">
+            <div class="h-full" style="width: ${(count / allData.length * 100)}%; background: ${pa};"></div>
+          </div>
+          <span class="text-xs opacity-60">${count}</span>
+        `;
+        timeSpent.appendChild(row);
+      });
+    }
+    
+    lucide.createIcons();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9dc46ac205917039',t:'MTc3MzUwMzI0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
